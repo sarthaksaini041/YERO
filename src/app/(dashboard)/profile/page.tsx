@@ -28,7 +28,7 @@ export default async function ProfilePage() {
   };
 
   return (
-    <AppShell maxWidth="md">
+    <AppShell>
       <ProfileContainer initialData={profileData} />
     </AppShell>
   );
