@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { NAV_ITEMS } from "./nav-config";
+import { MOBILE_NAV_ITEMS } from "./nav-config";
 import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
 import { useUnreadNotifications } from "@/lib/hooks/use-unread-notifications";
@@ -19,9 +19,9 @@ export function BottomNav() {
       aria-label="Mobile Navigation"
     >
       <nav
-        className="pointer-events-auto w-full max-w-[360px] bg-white border border-[var(--color-border)] shadow-[var(--shadow-lg)] rounded-[22px] px-2 py-1.5 flex items-center justify-between gap-0.5"
+        className="pointer-events-auto w-full max-w-[420px] bg-white border border-[var(--color-border)] shadow-[var(--shadow-lg)] rounded-[22px] px-1.5 py-1.5 flex items-center justify-between gap-0.5"
       >
-        {NAV_ITEMS.map((item) => {
+        {MOBILE_NAV_ITEMS.map((item) => {
           const isActive = item.exact
             ? pathname === item.href
             : pathname.startsWith(item.href);
@@ -32,7 +32,7 @@ export function BottomNav() {
               href={item.href}
               prefetch={true}
               className={cn(
-                "relative flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-[16px] min-h-[52px] transition-colors duration-150 select-none",
+                "relative flex-1 flex flex-col items-center justify-center py-1.5 px-0.5 rounded-[14px] min-h-[50px] transition-colors duration-150 select-none",
                 isActive
                   ? "text-[var(--color-accent)]"
                   : "text-[var(--color-text-faint)] hover:text-[var(--color-text-secondary)]"
@@ -42,7 +42,7 @@ export function BottomNav() {
               {isActive && (
                 <motion.span
                   layoutId="mobileActiveNavPill"
-                  className="absolute inset-0 bg-[var(--color-accent-light)] rounded-[16px] -z-10 will-change-transform"
+                  className="absolute inset-0 bg-[var(--color-accent-light)] rounded-[14px] -z-10 will-change-transform"
                   transition={{ type: "spring", stiffness: 400, damping: 32 }}
                 />
               )}
@@ -69,7 +69,7 @@ export function BottomNav() {
               </div>
 
               <span className={cn(
-                "text-[10.5px] leading-tight mt-1 tracking-tight",
+                "text-[10px] leading-tight mt-1 tracking-tight truncate max-w-full text-center",
                 isActive ? "font-semibold" : "font-medium"
               )}>
                 {item.label}

@@ -1,5 +1,7 @@
 import {
   CheckListIcon,
+  GitBranchIcon,
+  SourceCodeIcon,
   StickyNote01Icon,
   Notification03Icon,
   UserAccountIcon,
@@ -21,6 +23,18 @@ export const NAV_ITEMS: NavItemConfig[] = [
     label: "Tasks",
     icon: CheckListIcon,
     exact: true,
+  },
+  {
+    href: "/developer",
+    label: "Developer",
+    icon: GitBranchIcon,
+    exact: false,
+  },
+  {
+    href: "/coding",
+    label: "Coding",
+    icon: SourceCodeIcon,
+    exact: false,
   },
   {
     href: "/notes",
@@ -48,3 +62,11 @@ export const NAV_ITEMS: NavItemConfig[] = [
     exact: false,
   },
 ];
+
+/**
+ * Navigation items specifically for mobile bottom navigation.
+ * Settings is accessed directly from the Profile header on mobile devices.
+ */
+export const MOBILE_NAV_ITEMS: NavItemConfig[] = NAV_ITEMS.filter(
+  (item) => item.href !== "/settings"
+);

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { updateProfileName, updatePassword, type ProfileData } from "@/actions/profile";
 import { logoutAction } from "@/actions/auth";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,7 @@ import {
   Alert01Icon,
   ViewIcon,
   ViewOffIcon,
+  Settings03Icon,
 } from "@hugeicons/core-free-icons";
 
 interface ProfileContainerProps {
@@ -100,8 +102,26 @@ export function ProfileContainer({ initialData }: ProfileContainerProps) {
   return (
     <div className="w-full max-w-5xl space-y-6">
       {/* ── Page Header ── */}
-      <div>
+      <div className="flex items-center justify-between gap-4">
         <h1 className="text-heading-xl">Profile</h1>
+
+        {/* Mobile-only Settings navigation button */}
+        <Link
+          href="/settings"
+          aria-label="Settings"
+          title="Settings"
+          className={cn(
+            "lg:hidden relative inline-flex items-center justify-center",
+            "w-9 h-9 rounded-xl",
+            "bg-white border border-[var(--color-border)] shadow-[var(--shadow-xs)]",
+            "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-border-strong)] hover:bg-[var(--color-surface-muted)]",
+            "focus-visible:outline-2 focus-visible:outline-[var(--color-accent)] focus-visible:outline-offset-2",
+            "active:scale-95 transition-all duration-150 shrink-0 select-none touch-manipulation",
+            "before:absolute before:-inset-1.5 before:content-['']"
+          )}
+        >
+          <Icon icon={Settings03Icon} size="sm" />
+        </Link>
       </div>
 
       {/* ── Profile & Password Cards (Side-by-side on large devices) ── */}
@@ -122,7 +142,7 @@ export function ProfileContainer({ initialData }: ProfileContainerProps) {
             <form onSubmit={handleUpdateName} className="space-y-4 flex-1 flex flex-col justify-between">
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label htmlFor="profile-email" className="block text-[12px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wide">
+                  <label htmlFor="profile-email" className="block text-[12px] font-semibold text-[var(--color-text-muted)]">
                     Email
                   </label>
                   <Input
@@ -135,7 +155,7 @@ export function ProfileContainer({ initialData }: ProfileContainerProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="profile-name" className="block text-[12px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wide">
+                  <label htmlFor="profile-name" className="block text-[12px] font-semibold text-[var(--color-text-muted)]">
                     Display Name
                   </label>
                   <Input
@@ -177,7 +197,7 @@ export function ProfileContainer({ initialData }: ProfileContainerProps) {
             <form onSubmit={handleUpdatePassword} className="space-y-4 flex-1 flex flex-col justify-between">
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label htmlFor="profile-new-password" className="block text-[12px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wide">
+                  <label htmlFor="profile-new-password" className="block text-[12px] font-semibold text-[var(--color-text-muted)]">
                     New Password
                   </label>
                   <div className="relative">
@@ -209,7 +229,7 @@ export function ProfileContainer({ initialData }: ProfileContainerProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="profile-confirm-password" className="block text-[12px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wide">
+                  <label htmlFor="profile-confirm-password" className="block text-[12px] font-semibold text-[var(--color-text-muted)]">
                     Confirm Password
                   </label>
                   <Input
