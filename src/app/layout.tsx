@@ -13,7 +13,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-plus-jakarta",
   display: "swap",
-  weight: ["500", "600", "700", "800"],
+  weight: ["600", "700"],
 });
 
 export const viewport: Viewport = {
@@ -56,7 +56,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${plusJakartaSans.variable} h-full`}>
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      className={`${inter.variable} ${plusJakartaSans.variable} h-full`}
+    >
       <body className="antialiased min-h-full flex flex-col" style={{ fontFamily: "var(--font-inter), sans-serif" }}>
         <PwaProvider>{children}</PwaProvider>
       </body>

@@ -167,16 +167,12 @@ export async function getUnreadNotificationCount(): Promise<number> {
  * Marks all unread notification logs as read for the current user.
  */
 export async function markNotificationsAsRead(): Promise<{ success: boolean }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  const user = await getCurrentUser();
+  if (!user) {
     return { success: false };
   }
 
+  const supabase = await createClient();
   const { error } = await supabase
     .from("notification_logs")
     .update({ read: true })
@@ -198,16 +194,12 @@ export async function markNotificationsAsRead(): Promise<{ success: boolean }> {
 export async function deleteNotificationLog(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  const user = await getCurrentUser();
+  if (!user) {
     return { success: false, error: "Unauthorized" };
   }
 
+  const supabase = await createClient();
   const { error } = await supabase
     .from("notification_logs")
     .delete()
@@ -229,16 +221,12 @@ export async function clearAllNotificationLogs(): Promise<{
   success: boolean;
   error?: string;
 }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  const user = await getCurrentUser();
+  if (!user) {
     return { success: false, error: "Unauthorized" };
   }
 
+  const supabase = await createClient();
   const { error } = await supabase
     .from("notification_logs")
     .delete()
@@ -262,15 +250,12 @@ export async function sendTestNotification(): Promise<{
   pushDelivered?: boolean;
   error?: string;
 }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  const user = await getCurrentUser();
+  if (!user) {
     return { success: false, error: "Unauthorized" };
   }
+
+  const supabase = await createClient();
 
   const title = "Plan your day with YERO";
   const body = "This is a test notification from YERO. Your daily task reminders are active!";

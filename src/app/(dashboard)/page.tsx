@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/supabase/server";
 import { getTasks } from "@/actions/tasks";
 import { TaskList } from "@/components/tasks/TaskList";
 import { AppShell } from "@/components/layout/app-shell";
@@ -7,10 +7,7 @@ import { NotificationBootstrap } from "@/components/notifications/NotificationBo
 import { getISTDetails } from "@/lib/time/ist";
 
 export default async function HomePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     redirect("/login");

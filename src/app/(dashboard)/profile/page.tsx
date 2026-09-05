@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/supabase/server";
 import { ProfileContainer } from "@/components/profile/ProfileContainer";
 import { AppShell } from "@/components/layout/app-shell";
 
@@ -10,10 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ProfilePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     redirect("/login");

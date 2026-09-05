@@ -30,6 +30,7 @@ export function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
+              prefetch={true}
               className={cn(
                 "relative flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-xl min-h-[46px] transition-colors duration-150 select-none",
                 isActive
@@ -41,7 +42,7 @@ export function BottomNav() {
               {isActive && (
                 <motion.span
                   layoutId="mobileActiveNavPill"
-                  className="absolute inset-0 bg-[var(--color-accent-light)] rounded-xl -z-10"
+                  className="absolute inset-0 bg-[var(--color-accent-light)] rounded-xl -z-10 will-change-transform"
                   transition={{ type: "spring", stiffness: 450, damping: 35 }}
                 />
               )}

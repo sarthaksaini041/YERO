@@ -61,16 +61,12 @@ export async function createNote(input: {
     };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  const user = await getCurrentUser();
+  if (!user) {
     return { success: false, error: "Please log in to create notes." };
   }
 
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("notes")
     .insert({
@@ -118,16 +114,12 @@ export async function updateNote(input: {
     };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  const user = await getCurrentUser();
+  if (!user) {
     return { success: false, error: "Unauthorized" };
   }
 
+  const supabase = await createClient();
   const updatePayload: Record<string, unknown> = {
     title: validation.data.title,
     content: validation.data.content,
@@ -176,16 +168,12 @@ export async function togglePinNote(
     return { success: false, error: "Invalid parameters." };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  const user = await getCurrentUser();
+  if (!user) {
     return { success: false, error: "Unauthorized" };
   }
 
+  const supabase = await createClient();
   const { error } = await supabase
     .from("notes")
     .update({
@@ -211,15 +199,12 @@ export async function deleteNote(
     return { success: false, error: "Invalid note ID." };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  const user = await getCurrentUser();
+  if (!user) {
     return { success: false, error: "Unauthorized" };
   }
+
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("notes")

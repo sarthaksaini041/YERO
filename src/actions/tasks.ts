@@ -54,16 +54,12 @@ export async function createTask(
     };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  const user = await getCurrentUser();
+  if (!user) {
     return { success: false, error: "Please log in to add tasks." };
   }
 
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("tasks")
     .insert({
@@ -101,16 +97,12 @@ export async function toggleTask(
     return { success: false, error: "Invalid task update." };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  const user = await getCurrentUser();
+  if (!user) {
     return { success: false, error: "Unauthorized" };
   }
 
+  const supabase = await createClient();
   const { error } = await supabase
     .from("tasks")
     .update({
@@ -136,15 +128,12 @@ export async function deleteTask(
     return { success: false, error: "Invalid task ID." };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  const user = await getCurrentUser();
+  if (!user) {
     return { success: false, error: "Unauthorized" };
   }
+
+  const supabase = await createClient();
 
   const { error } = await supabase
     .from("tasks")

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getCurrentUser } from "@/lib/supabase/server";
 
 export interface ProfileData {
   name: string;
@@ -12,13 +12,9 @@ export async function getProfileData(): Promise<{
   data?: ProfileData;
   error?: string;
 }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
-  if (authError || !user) {
+  if (!user) {
     return { error: "Unauthorized" };
   }
 
@@ -48,16 +44,13 @@ export async function updateProfileName(
     return { success: false, error: "Name cannot exceed 50 characters." };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
-  if (authError || !user) {
+  if (!user) {
     return { success: false, error: "Unauthorized" };
   }
 
+  const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({
     data: {
       name: trimmed,
@@ -83,16 +76,13 @@ export async function updatePassword(
     };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
-  if (authError || !user) {
+  if (!user) {
     return { success: false, error: "Unauthorized" };
   }
 
+  const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({
     password: newPassword,
   });
