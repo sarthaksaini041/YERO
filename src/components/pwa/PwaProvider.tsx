@@ -82,7 +82,6 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
 
     // 3. Listen for beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       setIsInstallable(true);
     };

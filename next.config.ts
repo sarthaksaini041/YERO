@@ -3,13 +3,40 @@ import type { NextConfig } from "next";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://mglneknqwgpzjijfuaac.supabase.co";
 const supabaseWss = supabaseUrl.replace(/^http/, "ws");
 
+const trustedImageOrigins = [
+  "'self'",
+  "data:",
+  "blob:",
+  "https://avatars.githubusercontent.com",
+  "https://assets.leetcode.com",
+  "https://cdn.codechef.com",
+  "https://www.codechef.com",
+  "https://userpic.codeforces.org",
+  "https://codeforces.com",
+  "https://lh3.googleusercontent.com",
+  "https://*.supabase.co",
+  "https://*.gravatar.com",
+].join(" ");
+
+const trustedConnectOrigins = [
+  "'self'",
+  supabaseUrl,
+  supabaseWss,
+  "https://*.supabase.co",
+  "wss://*.supabase.co",
+  "https://*.push.apple.com",
+  "https://*.fcm.googleapis.com",
+  "https://updates.push.services.mozilla.com",
+  "https://*.notify.windows.com",
+].join(" ");
+
 const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-eval' 'unsafe-inline';
   style-src 'self' 'unsafe-inline';
-  img-src 'self' data: blob: https:;
+  img-src ${trustedImageOrigins};
   font-src 'self' data:;
-  connect-src 'self' ${supabaseUrl} ${supabaseWss} https://*.supabase.co wss://*.supabase.co https://*.push.apple.com https://*.fcm.googleapis.com https://updates.push.services.mozilla.com https://*.notify.windows.com;
+  connect-src ${trustedConnectOrigins};
   worker-src 'self' blob:;
   frame-ancestors 'none';
   base-uri 'self';

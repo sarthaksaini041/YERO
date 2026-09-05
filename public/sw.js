@@ -1,6 +1,6 @@
 // YERO Service Worker
-// Version: 1.0.1
-const CACHE_NAME = "yero-cache-v2";
+// Version: 1.0.2
+const CACHE_NAME = "yero-cache-v3";
 
 const PRECACHE_ASSETS = [
   "/offline.html",
@@ -53,15 +53,19 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // 1. Never cache non-GET requests
+  // 1. Only handle same-origin requests (never intercept cross-origin avatars or APIs)
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  // 2. Never cache non-GET requests
   if (request.method !== "GET") {
     return;
   }
 
-  // 2. Sensitive / dynamic endpoints & Next.js RSC dynamic streams: Network-only (native browser fetch)
+  // 3. Sensitive / dynamic endpoints & Next.js RSC dynamic streams: Network-only (native browser fetch)
   if (
     url.pathname.startsWith("/api/") ||
-    url.hostname.includes("supabase.co") ||
     url.pathname.includes("/auth/") ||
     url.searchParams.has("_rsc") ||
     request.headers.get("RSC") === "1"
@@ -69,49 +73,98 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 3. Navigation requests: Network-first, fallback to /offline.html
+  // 4. Navigation requests: Network-first, fallback to /offline.html or 503
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(async () => {
-        const cache = await caches.open(CACHE_NAME);
-        const cachedOffline = await cache.match("/offline.html");
-        return cachedOffline || Response.error();
-      })
+      (async () => {
+        try {
+          const networkResponse = await fetch(request);
+          if (networkResponse && networkResponse.status === 200) {
+            return networkResponse;
+          }
+          const cache = await caches.open(CACHE_NAME);
+          const cachedOffline = await cache.match("/offline.html");
+          return cachedOffline || networkResponse;
+        } catch {
+          const cache = await caches.open(CACHE_NAME);
+          const cachedOffline = await cache.match("/offline.html");
+          if (cachedOffline) {
+            return cachedOffline;
+          }
+          return new Response("Offline", {
+            status: 503,
+            statusText: "Service Unavailable",
+            headers: { "Content-Type": "text/html; charset=utf-8" },
+          });
+        }
+      })()
     );
     return;
   }
 
-  // 4. Static assets (_next/static, images, fonts): Stale-while-revalidate
+  // 5. Static assets (_next/static, images, fonts): Stale-while-revalidate
   const isStaticAsset =
     url.pathname.startsWith("/_next/static/") ||
     url.pathname.endsWith(".webp") ||
     url.pathname.endsWith(".png") ||
     url.pathname.endsWith(".jpg") ||
     url.pathname.endsWith(".ico") ||
-    url.pathname.endsWith(".woff2");
+    url.pathname.endsWith(".woff2") ||
+    url.pathname.endsWith(".svg");
 
   if (isStaticAsset) {
     event.respondWith(
-      caches.open(CACHE_NAME).then(async (cache) => {
-        const cachedResponse = await cache.match(request);
-        const fetchPromise = fetch(request)
-          .then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200) {
-              cache.put(request, networkResponse.clone());
-            }
-            return networkResponse;
-          })
-          .catch(() => cachedResponse);
+      (async () => {
+        try {
+          const cache = await caches.open(CACHE_NAME);
+          const cachedResponse = await cache.match(request);
 
-        return cachedResponse || fetchPromise;
-      })
+          const fetchPromise = fetch(request)
+            .then((networkResponse) => {
+              if (
+                networkResponse &&
+                networkResponse.status === 200 &&
+                networkResponse.type === "basic"
+              ) {
+                cache.put(request, networkResponse.clone()).catch(() => {});
+              }
+              return networkResponse;
+            })
+            .catch(() => null);
+
+          if (cachedResponse) {
+            event.waitUntil(fetchPromise);
+            return cachedResponse;
+          }
+
+          const networkResponse = await fetchPromise;
+          if (networkResponse) {
+            return networkResponse;
+          }
+
+          return new Response(null, { status: 404, statusText: "Not Found" });
+        } catch {
+          return new Response(null, { status: 404, statusText: "Not Found" });
+        }
+      })()
     );
     return;
   }
 
-  // Default: Network with fallback to cache
+  // 6. Default: Network-first with cache fallback, resolving to 504 on failure
   event.respondWith(
-    fetch(request).catch(() => caches.match(request))
+    (async () => {
+      try {
+        const response = await fetch(request);
+        return response;
+      } catch {
+        const cached = await caches.match(request);
+        if (cached) {
+          return cached;
+        }
+        return new Response(null, { status: 504, statusText: "Gateway Timeout" });
+      }
+    })()
   );
 });
 

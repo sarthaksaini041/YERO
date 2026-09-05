@@ -28,11 +28,14 @@ export function PlatformBreakdownCard({
   const [failedAvatarUrl, setFailedAvatarUrl] = React.useState<string | null>(null);
   const isAvatarBroken = Boolean(data.avatarUrl && failedAvatarUrl === data.avatarUrl);
 
-  // Route avatar through our proxy to handle Cloudflare 503, CORS, and hotlinking restrictions
-  const proxyAvatarUrl = React.useMemo(() => {
+  // Use direct avatar URL, ensuring Codeforces URLs use the reliable codeforces.com domain
+  const directAvatarUrl = React.useMemo(() => {
     if (!data.avatarUrl) return null;
-    if (data.avatarUrl.startsWith("/api/avatar")) return data.avatarUrl;
-    return `/api/avatar?url=${encodeURIComponent(data.avatarUrl)}`;
+    let url = data.avatarUrl;
+    if (url.includes("userpic.codeforces.org/")) {
+      url = url.replace("userpic.codeforces.org/", "codeforces.com/userpic/");
+    }
+    return url;
   }, [data.avatarUrl]);
 
   const handleRetry = async () => {
@@ -54,10 +57,10 @@ export function PlatformBreakdownCard({
         <div className="flex items-start justify-between gap-3 pb-3 border-b border-[var(--color-border)]">
           <div className="flex items-center gap-2.5 min-w-0">
             {/* Avatar or Platform Badge */}
-            {proxyAvatarUrl && !isAvatarBroken ? (
+            {directAvatarUrl && !isAvatarBroken ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={proxyAvatarUrl}
+                src={directAvatarUrl}
                 alt=""
                 referrerPolicy="no-referrer"
                 onError={() => setFailedAvatarUrl(data.avatarUrl || "")}
