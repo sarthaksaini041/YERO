@@ -3,49 +3,47 @@ import * as React from "react";
 export default function DashboardLoading() {
   return (
     <main
-      className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 sm:py-3.5 lg:py-4 max-w-4xl animate-pulse"
+      className="flex-1 w-full px-5 pt-5 pb-28 sm:px-7 sm:pt-6 sm:pb-32 lg:px-10 lg:py-8 animate-pulse"
       aria-busy="true"
       aria-label="Loading content"
     >
-      <div className="space-y-4">
-        {/* ── Header Skeleton ── */}
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="h-7 w-36 bg-gray-200/80 rounded-lg" />
-            <div className="h-5 w-24 bg-gray-100 rounded-md hidden sm:block" />
+      <div className="space-y-5">
+        {/* ── Page Hero Skeleton ── */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 space-y-2.5">
+            {/* Title */}
+            <div className="h-7 w-40 bg-[var(--color-border)] rounded-lg" />
+            {/* Date + progress meta */}
+            <div className="h-4 w-28 bg-[var(--color-surface-muted)] rounded-md" />
+            {/* Progress bar */}
+            <div className="h-1.5 w-52 bg-[var(--color-surface-muted)] rounded-full" />
           </div>
-          <div className="h-8 w-24 bg-gray-200/70 rounded-xl" />
+          {/* Add button skeleton */}
+          <div className="h-[38px] w-28 bg-[var(--color-border)] rounded-[var(--radius-md)]" />
         </div>
 
-        {/* ── Tabs / Filters Skeleton ── */}
-        <div className="flex items-center gap-2 pt-1">
-          <div className="h-8 w-16 bg-gray-200/70 rounded-lg" />
-          <div className="h-8 w-20 bg-gray-100 rounded-lg" />
-          <div className="h-8 w-20 bg-gray-100 rounded-lg" />
-        </div>
+        {/* ── Filter Tabs Skeleton ── */}
+        <div className="h-[38px] w-56 bg-[var(--color-surface-muted)] rounded-[var(--radius-md)] border border-[var(--color-border)]" />
 
-        {/* ── Cards Skeleton ── */}
-        <div className="space-y-2.5 pt-2">
-          <div className="h-14 rounded-xl bg-white border border-[var(--color-border)] shadow-[var(--shadow-xs)] flex items-center px-4 gap-3">
-            <div className="w-5 h-5 rounded-md bg-gray-200/70 shrink-0" />
-            <div className="h-4 bg-gray-200/70 rounded w-2/5" />
-            <div className="ml-auto h-3.5 bg-gray-100 rounded w-16" />
-          </div>
-          <div className="h-14 rounded-xl bg-white border border-[var(--color-border)] shadow-[var(--shadow-xs)] flex items-center px-4 gap-3">
-            <div className="w-5 h-5 rounded-md bg-gray-200/70 shrink-0" />
-            <div className="h-4 bg-gray-200/70 rounded w-1/2" />
-            <div className="ml-auto h-3.5 bg-gray-100 rounded w-14" />
-          </div>
-          <div className="h-14 rounded-xl bg-white border border-[var(--color-border)] shadow-[var(--shadow-xs)] flex items-center px-4 gap-3">
-            <div className="w-5 h-5 rounded-md bg-gray-200/70 shrink-0" />
-            <div className="h-4 bg-gray-200/70 rounded w-1/3" />
-            <div className="ml-auto h-3.5 bg-gray-100 rounded w-12" />
-          </div>
-          <div className="h-14 rounded-xl bg-white border border-[var(--color-border)] shadow-[var(--shadow-xs)] flex items-center px-4 gap-3 opacity-60">
-            <div className="w-5 h-5 rounded-md bg-gray-200/70 shrink-0" />
-            <div className="h-4 bg-gray-200/70 rounded w-2/5" />
-            <div className="ml-auto h-3.5 bg-gray-100 rounded w-16" />
-          </div>
+        {/* ── Task Cards Skeleton ── */}
+        <div className="space-y-2">
+          {[...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-3 px-4 py-3.5 rounded-[var(--radius-md)] bg-white border border-[var(--color-border)] shadow-[var(--shadow-xs)]"
+              style={{ opacity: 1 - i * 0.15 }}
+            >
+              {/* Checkbox */}
+              <div className="w-5 h-5 rounded-md bg-[var(--color-border)] shrink-0" />
+              {/* Title */}
+              <div
+                className="h-4 bg-[var(--color-border)] rounded"
+                style={{ width: `${[45, 60, 35, 50][i]}%` }}
+              />
+              {/* Time */}
+              <div className="ml-auto h-3.5 w-14 bg-[var(--color-surface-muted)] rounded" />
+            </div>
+          ))}
         </div>
       </div>
     </main>
