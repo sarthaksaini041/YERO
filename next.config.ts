@@ -20,6 +20,58 @@ const cspHeader = `
 
 const nextConfig: NextConfig = {
   compress: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.githubusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "github.com",
+      },
+      {
+        protocol: "https",
+        hostname: "assets.leetcode.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.codechef.com",
+      },
+      {
+        protocol: "https",
+        hostname: "codechef.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.codeforces.com",
+      },
+      {
+        protocol: "https",
+        hostname: "codeforces.com",
+      },
+      {
+        protocol: "https",
+        hostname: "userpic.codeforces.org",
+      },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+      },
+      {
+        protocol: "https",
+        hostname: "*.gravatar.com",
+      },
+    ],
+  },
   experimental: {
     optimizePackageImports: [
       "@hugeicons/core-free-icons",
