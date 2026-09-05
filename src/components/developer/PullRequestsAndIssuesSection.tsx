@@ -30,20 +30,15 @@ export function PullRequestsAndIssuesSection({
   const displayedIssues = issues.slice(0, 6);
 
   return (
-    <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-5 sm:p-6 shadow-[var(--shadow-xs)] flex flex-col justify-between">
+    <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-4 sm:p-4.5 shadow-[var(--shadow-xs)] flex flex-col justify-between">
       <div>
         {/* Header & Tab Selector */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-[var(--color-border)]">
-          <div>
-            <h3 className="text-base sm:text-heading font-semibold text-[var(--color-text-primary)]">
-              PRs & Issues
-            </h3>
-            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-              Contributions and open-source discussions
-            </p>
-          </div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-[var(--color-border)]">
+          <h3 className="text-base sm:text-heading font-semibold text-[var(--color-text-primary)]">
+            PRs & Issues
+          </h3>
 
-          <div className="inline-flex items-center p-1 rounded-lg bg-[var(--color-surface-muted)] border border-[var(--color-border)] shrink-0 self-start sm:self-auto">
+          <div className="inline-flex items-center p-0.5 rounded-lg bg-[var(--color-surface-muted)] border border-[var(--color-border)] shrink-0 self-start sm:self-auto">
             <button
               type="button"
               onClick={() => setActiveTab("prs")}
@@ -91,14 +86,14 @@ export function PullRequestsAndIssuesSection({
         </div>
 
         {/* Content List */}
-        <div className="mt-4">
+        <div className="mt-3">
           {activeTab === "prs" ? (
             displayedPRs.length === 0 ? (
-              <div className="text-center py-12 text-xs text-[var(--color-text-muted)] border border-dashed border-[var(--color-border)] rounded-[var(--radius-md)]">
+              <div className="text-center py-10 text-xs text-[var(--color-text-muted)] border border-dashed border-[var(--color-border)] rounded-[var(--radius-md)]">
                 No recent pull requests recorded.
               </div>
             ) : (
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 {displayedPRs.map((pr) => {
                   const isMerged = pr.state === "merged";
                   const isOpen = pr.state === "open";
@@ -106,9 +101,9 @@ export function PullRequestsAndIssuesSection({
                   return (
                     <div
                       key={pr.id}
-                      className="group p-3 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] hover:bg-white hover:border-[var(--color-border-strong)] hover:shadow-[var(--shadow-xs)] transition-all"
+                      className="group p-2.5 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] hover:bg-white hover:border-[var(--color-border-strong)] hover:shadow-[var(--shadow-xs)] transition-all"
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-2.5">
                         {/* Status Icon */}
                         <div
                           className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 mt-0.5 ${
@@ -126,7 +121,7 @@ export function PullRequestsAndIssuesSection({
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
-                              <span className="text-[11.5px] font-mono font-medium text-[var(--color-text-secondary)] truncate">
+                              <span className="text-[11px] font-mono font-medium text-[var(--color-text-secondary)] truncate">
                                 {pr.repo} <span className="text-[var(--color-text-muted)] font-normal">#{pr.number}</span>
                               </span>
                               <span
@@ -142,17 +137,17 @@ export function PullRequestsAndIssuesSection({
                               </span>
                             </div>
 
-                            <span className="text-[10.5px] font-mono text-[var(--color-text-faint)] shrink-0">
+                            <span className="text-[10px] font-mono text-[var(--color-text-faint)] shrink-0">
                               {formatRelativeTime(pr.createdAt)}
                             </span>
                           </div>
 
-                          <div className="mt-1">
+                          <div className="mt-0.5">
                             <a
                               href={pr.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] inline-flex items-center gap-1.5 leading-snug line-clamp-1 transition-colors group-hover:underline"
+                              className="text-xs font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] inline-flex items-center gap-1 leading-snug line-clamp-1 transition-colors group-hover:underline"
                             >
                               <span>{pr.title}</span>
                               <Icon
@@ -170,20 +165,20 @@ export function PullRequestsAndIssuesSection({
               </div>
             )
           ) : displayedIssues.length === 0 ? (
-            <div className="text-center py-12 text-xs text-[var(--color-text-muted)] border border-dashed border-[var(--color-border)] rounded-[var(--radius-md)]">
+            <div className="text-center py-10 text-xs text-[var(--color-text-muted)] border border-dashed border-[var(--color-border)] rounded-[var(--radius-md)]">
               No recent issues recorded.
             </div>
           ) : (
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               {displayedIssues.map((issue) => {
                 const isOpen = issue.state === "open";
 
                 return (
                   <div
                     key={issue.id}
-                    className="group p-3 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] hover:bg-white hover:border-[var(--color-border-strong)] hover:shadow-[var(--shadow-xs)] transition-all"
+                    className="group p-2.5 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] hover:bg-white hover:border-[var(--color-border-strong)] hover:shadow-[var(--shadow-xs)] transition-all"
                   >
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-2.5">
                       {/* Status Icon */}
                       <div
                         className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 mt-0.5 ${
@@ -199,7 +194,7 @@ export function PullRequestsAndIssuesSection({
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
-                            <span className="text-[11.5px] font-mono font-medium text-[var(--color-text-secondary)] truncate">
+                            <span className="text-[11px] font-mono font-medium text-[var(--color-text-secondary)] truncate">
                               {issue.repo} <span className="text-[var(--color-text-muted)] font-normal">#{issue.number}</span>
                             </span>
                             <span
@@ -213,17 +208,17 @@ export function PullRequestsAndIssuesSection({
                             </span>
                           </div>
 
-                          <span className="text-[10.5px] font-mono text-[var(--color-text-faint)] shrink-0">
+                          <span className="text-[10px] font-mono text-[var(--color-text-faint)] shrink-0">
                             {formatRelativeTime(issue.createdAt)}
                           </span>
                         </div>
 
-                        <div className="mt-1">
+                        <div className="mt-0.5">
                           <a
                             href={issue.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] inline-flex items-center gap-1.5 leading-snug line-clamp-1 transition-colors group-hover:underline"
+                            className="text-xs font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] inline-flex items-center gap-1 leading-snug line-clamp-1 transition-colors group-hover:underline"
                           >
                             <span>{issue.title}</span>
                             <Icon
@@ -245,8 +240,8 @@ export function PullRequestsAndIssuesSection({
 
       {((activeTab === "prs" && pullRequests.length > 6) ||
         (activeTab === "issues" && issues.length > 6)) && (
-        <div className="mt-4 pt-3 border-t border-[var(--color-border)] text-center">
-          <span className="text-[11px] font-mono text-[var(--color-text-faint)]">
+        <div className="mt-2.5 pt-2 border-t border-[var(--color-border)] text-center">
+          <span className="text-[10.5px] font-mono text-[var(--color-text-faint)]">
             Showing top 6 of {activeTab === "prs" ? pullRequests.length : issues.length} items
           </span>
         </div>

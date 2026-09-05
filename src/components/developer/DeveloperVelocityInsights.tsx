@@ -93,27 +93,22 @@ export function DeveloperVelocityInsights({
   }, [totalStars, repoStats.total]);
 
   return (
-    <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-5 sm:p-6 shadow-[var(--shadow-xs)] flex flex-col justify-between">
+    <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-4 sm:p-4.5 shadow-[var(--shadow-xs)] flex flex-col justify-between">
       <div>
         {/* Header */}
-        <div className="flex items-center justify-between pb-3.5 border-b border-[var(--color-border)]">
-          <div>
-            <h3 className="text-base sm:text-heading font-semibold text-[var(--color-text-primary)]">
-              Repository & Activity Velocity
-            </h3>
-            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-              Pull request efficiency, repo composition, and cadence insights
-            </p>
-          </div>
+        <div className="flex items-center justify-between pb-2.5 border-b border-[var(--color-border)]">
+          <h3 className="text-base sm:text-heading font-semibold text-[var(--color-text-primary)]">
+            Repository & Activity Velocity
+          </h3>
           <span className="text-xs font-mono text-[var(--color-text-faint)] hidden sm:inline">
             Insights
           </span>
         </div>
 
         {/* Metric Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-3">
           {/* Card 1: PR Merge Velocity */}
-          <div className="p-3.5 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)]">
+          <div className="p-3 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)]">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-[var(--color-text-muted)]">
                 PR Merge Rate
@@ -122,16 +117,16 @@ export function DeveloperVelocityInsights({
                 <Icon icon={GitPullRequestIcon} size={13} />
               </div>
             </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-xl font-bold font-mono text-[var(--color-text-primary)]">
+            <div className="mt-1.5 flex items-baseline gap-2">
+              <span className="text-lg sm:text-xl font-bold font-mono text-[var(--color-text-primary)]">
                 {prStats.total > 0 ? `${prStats.mergeRate}%` : "—"}
               </span>
-              <span className="text-[11px] text-[var(--color-text-faint)]">
+              <span className="text-[10.5px] text-[var(--color-text-faint)]">
                 {prStats.merged} of {prStats.total} merged
               </span>
             </div>
             {/* Mini Progress Bar */}
-            <div className="h-1.5 w-full rounded-full bg-[var(--color-surface-muted)] overflow-hidden mt-2.5">
+            <div className="h-1.5 w-full rounded-full bg-[var(--color-surface-muted)] overflow-hidden mt-2">
               <div
                 className="h-full bg-purple-500 rounded-full transition-all duration-300"
                 style={{ width: `${prStats.total > 0 ? prStats.mergeRate : 0}%` }}
@@ -140,7 +135,7 @@ export function DeveloperVelocityInsights({
           </div>
 
           {/* Card 2: Original Repos Ratio */}
-          <div className="p-3.5 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)]">
+          <div className="p-3 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)]">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-[var(--color-text-muted)]">
                 Repository Types
@@ -149,16 +144,16 @@ export function DeveloperVelocityInsights({
                 <Icon icon={GitBranchIcon} size={13} />
               </div>
             </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-xl font-bold font-mono text-[var(--color-text-primary)]">
+            <div className="mt-1.5 flex items-baseline gap-2">
+              <span className="text-lg sm:text-xl font-bold font-mono text-[var(--color-text-primary)]">
                 {repoStats.originalPct}%
               </span>
-              <span className="text-[11px] text-[var(--color-text-faint)]">
+              <span className="text-[10.5px] text-[var(--color-text-faint)]">
                 {repoStats.original} source · {repoStats.forks} forks
               </span>
             </div>
             {/* Mini Progress Bar */}
-            <div className="h-1.5 w-full rounded-full bg-[var(--color-surface-muted)] overflow-hidden mt-2.5">
+            <div className="h-1.5 w-full rounded-full bg-[var(--color-surface-muted)] overflow-hidden mt-2">
               <div
                 className="h-full bg-indigo-500 rounded-full transition-all duration-300"
                 style={{ width: `${repoStats.originalPct}%` }}
@@ -168,47 +163,47 @@ export function DeveloperVelocityInsights({
         </div>
 
         {/* Detailed Insights Strip */}
-        <div className="mt-3.5 space-y-2">
-          <div className="p-3 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] flex items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                <Icon icon={CheckmarkCircle01Icon} size={13} />
+        <div className={`mt-2.5 grid grid-cols-1 ${issueStats.total > 0 ? "sm:grid-cols-3" : "sm:grid-cols-2"} gap-2`}>
+          <div className="p-2.5 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] flex items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-5 h-5 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <Icon icon={CheckmarkCircle01Icon} size={12} />
               </div>
-              <span className="text-[var(--color-text-secondary)] font-medium truncate">
-                Most Active Day of Week
+              <span className="text-[var(--color-text-secondary)] font-medium truncate text-[11px]">
+                Peak Day
               </span>
             </div>
-            <span className="font-bold font-mono text-[var(--color-text-primary)] shrink-0">
+            <span className="font-bold font-mono text-[var(--color-text-primary)] shrink-0 text-xs">
               {mostProductiveDay}s
             </span>
           </div>
 
-          <div className="p-3 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] flex items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-6 h-6 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                <Icon icon={SparklesIcon} size={13} />
+          <div className="p-2.5 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] flex items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-5 h-5 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                <Icon icon={SparklesIcon} size={12} />
               </div>
-              <span className="text-[var(--color-text-secondary)] font-medium truncate">
-                Average Stars per Repository
+              <span className="text-[var(--color-text-secondary)] font-medium truncate text-[11px]">
+                Avg Stars
               </span>
             </div>
-            <span className="font-bold font-mono text-[var(--color-text-primary)] shrink-0">
+            <span className="font-bold font-mono text-[var(--color-text-primary)] shrink-0 text-xs">
               ★ {avgStarsPerRepo}
             </span>
           </div>
 
           {issueStats.total > 0 && (
-            <div className="p-3 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] flex items-center justify-between gap-3 text-xs">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
-                  <Icon icon={AlertCircleIcon} size={13} />
+            <div className="p-2.5 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] flex items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-5 h-5 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+                  <Icon icon={AlertCircleIcon} size={12} />
                 </div>
-                <span className="text-[var(--color-text-secondary)] font-medium truncate">
-                  Issue Resolution Rate
+                <span className="text-[var(--color-text-secondary)] font-medium truncate text-[11px]">
+                  Resolution
                 </span>
               </div>
-              <span className="font-bold font-mono text-[var(--color-text-primary)] shrink-0">
-                {issueStats.resolutionRate}% ({issueStats.closed}/{issueStats.total})
+              <span className="font-bold font-mono text-[var(--color-text-primary)] shrink-0 text-xs">
+                {issueStats.resolutionRate}%
               </span>
             </div>
           )}

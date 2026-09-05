@@ -75,38 +75,33 @@ export function RecentActivityTimeline({ activity }: RecentActivityTimelineProps
   };
 
   return (
-    <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-5 sm:p-6 shadow-[var(--shadow-xs)] flex flex-col justify-between">
+    <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-4 sm:p-4.5 shadow-[var(--shadow-xs)] flex flex-col justify-between">
       <div>
         {/* Header */}
-        <div className="flex items-center justify-between pb-3.5 border-b border-[var(--color-border)]">
-          <div>
-            <h3 className="text-base sm:text-heading font-semibold text-[var(--color-text-primary)]">
-              Recent Activity Feed
-            </h3>
-            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-              Verified commits, push batches, and repository events
-            </p>
-          </div>
+        <div className="flex items-center justify-between pb-2.5 border-b border-[var(--color-border)]">
+          <h3 className="text-base sm:text-heading font-semibold text-[var(--color-text-primary)]">
+            Recent Activity Feed
+          </h3>
           <span className="text-xs font-mono text-[var(--color-text-faint)]">
             {activity.length} events
           </span>
         </div>
 
         {/* Timeline Items */}
-        <div className="relative mt-4 ml-2 sm:ml-3 pl-4 sm:pl-5 border-l-2 border-[var(--color-border)] space-y-3">
+        <div className="relative mt-3 ml-2 sm:ml-2.5 pl-3.5 sm:pl-4 border-l-2 border-[var(--color-border)] space-y-2">
           {displayedItems.map((item) => (
             <div key={item.id} className="relative group">
               {/* Timeline Bullet */}
-              <div className="absolute -left-[27px] sm:-left-[31px] top-2 w-5 h-5 rounded-full bg-white border-2 border-[var(--color-border-strong)] flex items-center justify-center group-hover:border-[var(--color-accent)] transition-colors shadow-[var(--shadow-xs)]">
+              <div className="absolute -left-[25px] sm:-left-[27px] top-2 w-5 h-5 rounded-full bg-white border-2 border-[var(--color-border-strong)] flex items-center justify-center group-hover:border-[var(--color-accent)] transition-colors shadow-[var(--shadow-xs)]">
                 {getEventIcon(item.type)}
               </div>
 
               {/* Event Card */}
-              <div className="p-3 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] hover:bg-white hover:border-[var(--color-border-strong)] hover:shadow-[var(--shadow-xs)] transition-all">
+              <div className="p-2.5 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] hover:bg-white hover:border-[var(--color-border-strong)] hover:shadow-[var(--shadow-xs)] transition-all">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${getBadgeStyle(
+                      className={`px-1.5 py-0.2 rounded text-[10px] font-semibold border ${getBadgeStyle(
                         item.type
                       )}`}
                     >
@@ -128,32 +123,32 @@ export function RecentActivityTimeline({ activity }: RecentActivityTimelineProps
                     </a>
                   </div>
 
-                  <span className="text-[11px] font-mono text-[var(--color-text-faint)] shrink-0">
+                  <span className="text-[10.5px] font-mono text-[var(--color-text-faint)] shrink-0">
                     {formatRelativeTime(item.timestamp)}
                   </span>
                 </div>
 
                 {/* Event Description */}
-                <div className="mt-1.5 text-xs text-[var(--color-text-secondary)] font-medium leading-relaxed">
+                <div className="mt-1 text-xs text-[var(--color-text-secondary)] font-medium leading-snug">
                   {item.title}
                 </div>
 
                 {/* Commits list (if push event) */}
                 {item.commits && item.commits.length > 0 && (
-                  <div className="mt-2 space-y-1 pt-2 border-t border-[var(--color-border)]/60">
+                  <div className="mt-1.5 space-y-1 pt-1.5 border-t border-[var(--color-border)]/60">
                     {item.commits.slice(0, 3).map((c, i) => (
                       <div
                         key={i}
-                        className="flex items-start gap-2 text-[11px] font-mono text-[var(--color-text-muted)]"
+                        className="flex items-start gap-1.5 text-[10.5px] font-mono text-[var(--color-text-muted)]"
                       >
-                        <span className="px-1.5 py-0.2 rounded bg-[var(--color-surface-muted)] text-[var(--color-text-primary)] text-[10px] font-bold shrink-0">
+                        <span className="px-1.5 py-0.2 rounded bg-[var(--color-surface-muted)] text-[var(--color-text-primary)] text-[9.5px] font-bold shrink-0">
                           {c.sha}
                         </span>
                         <span className="truncate leading-tight">{c.message}</span>
                       </div>
                     ))}
                     {item.commits.length > 3 && (
-                      <div className="text-[10.5px] font-mono text-[var(--color-text-faint)] pt-0.5">
+                      <div className="text-[10px] font-mono text-[var(--color-text-faint)] pt-0.5">
                         +{item.commits.length - 3} more commits in this push
                       </div>
                     )}
@@ -167,7 +162,7 @@ export function RecentActivityTimeline({ activity }: RecentActivityTimelineProps
 
       {/* Show more toggle */}
       {activity.length > 6 && (
-        <div className="mt-4 pt-3 border-t border-[var(--color-border)] text-center">
+        <div className="mt-2.5 pt-2 border-t border-[var(--color-border)] text-center">
           <button
             type="button"
             onClick={() => setShowAll((prev) => !prev)}

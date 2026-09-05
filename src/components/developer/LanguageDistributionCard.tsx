@@ -14,7 +14,7 @@ export function LanguageDistributionCard({
 }: LanguageDistributionCardProps) {
   if (!languages || languages.length === 0) {
     return (
-      <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-5 sm:p-6 shadow-[var(--shadow-xs)] flex flex-col justify-center min-h-[300px]">
+      <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-4 sm:p-4.5 shadow-[var(--shadow-xs)] flex flex-col justify-center min-h-[260px]">
         <h3 className="text-base sm:text-heading font-semibold text-[var(--color-text-primary)]">
           Programming Languages
         </h3>
@@ -29,25 +29,20 @@ export function LanguageDistributionCard({
   const topLanguages = languages.slice(0, 8);
 
   return (
-    <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-5 sm:p-6 shadow-[var(--shadow-xs)] flex flex-col justify-between">
+    <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-4 sm:p-4.5 shadow-[var(--shadow-xs)] flex flex-col justify-between">
       <div>
         {/* Header */}
-        <div className="flex items-center justify-between pb-3.5 border-b border-[var(--color-border)]">
-          <div>
-            <h3 className="text-base sm:text-heading font-semibold text-[var(--color-text-primary)]">
-              Programming Languages
-            </h3>
-            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-              Code distribution across {totalRepos} owned public repositories
-            </p>
-          </div>
+        <div className="flex items-center justify-between pb-2.5 border-b border-[var(--color-border)]">
+          <h3 className="text-base sm:text-heading font-semibold text-[var(--color-text-primary)]">
+            Programming Languages
+          </h3>
           <span className="text-xs font-mono text-[var(--color-text-faint)]">
-            {languages.length} detected
+            {languages.length} detected · {totalRepos} {totalRepos === 1 ? "repo" : "repos"}
           </span>
         </div>
 
         {/* Proportional Multi-Color Progress Bar */}
-        <div className="h-3 w-full rounded-full overflow-hidden flex mt-4 bg-[var(--color-surface-muted)] p-0.5 gap-0.5 shadow-inner">
+        <div className="h-2.5 w-full rounded-full overflow-hidden flex mt-3 bg-[var(--color-surface-muted)] p-0.5 gap-0.5 shadow-inner">
           {languages.map((lang) => (
             <div
               key={lang.name}
@@ -62,11 +57,11 @@ export function LanguageDistributionCard({
         </div>
 
         {/* Language Items Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
           {topLanguages.map((lang) => (
             <div
               key={lang.name}
-              className="flex items-center justify-between p-2.5 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] hover:bg-[var(--color-surface-muted)] transition-colors"
+              className="flex items-center justify-between p-2 sm:p-2.5 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] hover:bg-[var(--color-surface-muted)] transition-colors"
             >
               <div className="flex items-center gap-2 min-w-0">
                 <span
@@ -81,7 +76,7 @@ export function LanguageDistributionCard({
                 <span className="text-xs font-bold font-mono text-[var(--color-text-primary)]">
                   {lang.percentage}%
                 </span>
-                <span className="text-[10.5px] text-[var(--color-text-faint)]">
+                <span className="text-[10px] text-[var(--color-text-faint)]">
                   ({lang.count} {lang.count === 1 ? "repo" : "repos"})
                 </span>
               </div>
@@ -91,8 +86,8 @@ export function LanguageDistributionCard({
       </div>
 
       {languages.length > 8 && (
-        <div className="mt-3 pt-2 text-right">
-          <span className="text-[11px] text-[var(--color-text-faint)] font-mono">
+        <div className="mt-2.5 pt-1.5 text-right">
+          <span className="text-[10.5px] text-[var(--color-text-faint)] font-mono">
             +{languages.length - 8} more languages detected
           </span>
         </div>

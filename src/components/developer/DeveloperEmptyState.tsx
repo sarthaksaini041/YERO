@@ -76,21 +76,16 @@ export function DeveloperEmptyState() {
   ];
 
   return (
-    <div className="w-full max-w-[1536px] mx-auto space-y-7 lg:space-y-8 pb-16">
+    <div className="w-full max-w-[1536px] mx-auto space-y-3.5 sm:space-y-4 pb-10">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-2xl sm:text-heading-xl font-bold tracking-tight text-[var(--color-text-primary)]">
-              Developer Intelligence
-            </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-              GitHub Connector
-            </span>
-          </div>
-          <p className="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1">
-            Real GitHub metrics, 52-week contribution timeline, repository activity, and engineering analytics
-          </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--color-text-primary)]">
+            Developer Intelligence
+          </h1>
+          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+            GitHub Connector
+          </span>
         </div>
 
         <Link href="/connectors">
