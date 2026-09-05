@@ -1,9 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { Check, Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Icon } from "@/components/ui/icon";
+import { IconButton } from "@/components/ui/icon-button";
 import type { Task } from "@/db/schema";
+import {
+  Tick02Icon,
+  Delete02Icon,
+  Loading03Icon,
+} from "@hugeicons/core-free-icons";
+import { TIMEZONE_IST } from "@/lib/time/ist";
 
 interface TaskItemProps {
   task: Task;
@@ -11,7 +18,14 @@ interface TaskItemProps {
   onDelete: (id: string) => Promise<void>;
 }
 
-export function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
+const taskTimeFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: TIMEZONE_IST,
+  hour: "numeric",
+  minute: "numeric",
+  hour12: true,
+});
+
+export const TaskItem = React.memo(function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
   const [isUpdating, setIsUpdating] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
 
@@ -29,23 +43,24 @@ export function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
     await onDelete(task.id);
   };
 
-  // Format created time cleanly
-  const formattedTime = new Intl.DateTimeFormat("en-US", {
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
-  }).format(new Date(task.createdAt));
+  const formattedTime = taskTimeFormatter.format(new Date(task.createdAt));
 
   return (
     <div
       className={cn(
-        "group relative flex items-center justify-between p-2.5 sm:p-3 rounded-xl liquid-glass-card-subtle transition-all duration-150 hover:bg-white/80 hover:shadow-2xs",
-        task.completed && "bg-white/40 border-slate-200/50",
+        "group relative flex items-center justify-between",
+        "px-3.5 py-2 sm:px-4 sm:py-2.5",
+        "rounded-xl bg-white border border-[var(--color-border)]",
+        "shadow-[var(--shadow-xs)] hover:shadow-[var(--shadow-sm)]",
+        "hover:border-[var(--color-border-strong)]",
+        "transition-[box-shadow,border-color,opacity] duration-150",
+        task.completed && "opacity-70",
         isDeleting && "opacity-40 pointer-events-none"
       )}
     >
-      <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-2">
-        {/* Custom liquid glass checkbox */}
+      {/* Left: Checkbox + Title */}
+      <div className="flex items-center gap-2.5 flex-1 min-w-0 pr-3">
+        {/* Checkbox */}
         <button
           type="button"
           role="checkbox"
@@ -54,55 +69,69 @@ export function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
           onClick={handleToggle}
           disabled={isUpdating || isDeleting}
           className={cn(
-            "w-5 h-5 rounded-lg border flex items-center justify-center transition-all duration-200 shrink-0 cursor-pointer",
+            "w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 cursor-pointer",
+            "transition-[background-color,border-color,transform] duration-150 active:scale-90",
             task.completed
-              ? "bg-slate-900 border-slate-900 text-white shadow-2xs"
-              : "bg-white/90 border-slate-300/80 hover:border-slate-500 hover:bg-white",
+              ? "bg-[var(--color-accent)] border-[var(--color-accent)]"
+              : "bg-white border-[var(--color-border-strong)] hover:border-[var(--color-accent)]",
             isUpdating && "opacity-50"
           )}
         >
           {isUpdating ? (
-            <Loader2 className="w-3 h-3 animate-spin text-slate-500" />
+            <Icon icon={Loading03Icon} size="xs" className="animate-spin text-white" />
           ) : task.completed ? (
-            <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+            <Icon icon={Tick02Icon} size="xs" className="text-white" strokeWidth={2.5} />
           ) : null}
         </button>
 
         {/* Task Title */}
-        <span
+        <button
+          type="button"
           onClick={handleToggle}
+          disabled={isUpdating || isDeleting}
           className={cn(
-            "text-sm select-none cursor-pointer transition-all duration-200 break-words flex-1",
+            "text-left text-[13.5px] sm:text-[14px] leading-snug select-none cursor-pointer",
+            "transition-colors duration-150 flex-1 min-w-0",
+            "disabled:cursor-default focus:outline-none",
             task.completed
-              ? "text-slate-400 line-through decoration-slate-300"
-              : "text-slate-700 font-normal hover:text-slate-900"
+              ? "text-[var(--color-text-faint)] line-through decoration-[var(--color-border-strong)]"
+              : "text-[var(--color-text-primary)] hover:text-[var(--color-text-primary)]"
           )}
         >
           {task.title}
-        </span>
+        </button>
       </div>
 
-      {/* Meta & Actions */}
+      {/* Right: Meta + Delete */}
       <div className="flex items-center gap-2 shrink-0">
-        <span className="text-[11px] text-slate-400 font-medium hidden sm:inline-block">
+        <span
+          suppressHydrationWarning
+          className="text-[12px] text-[var(--color-text-faint)] font-medium hidden sm:block"
+        >
           {formattedTime}
         </span>
 
-        {/* Delete button */}
-        <button
-          type="button"
+        <IconButton
+          aria-label="Delete task"
           onClick={handleDelete}
           disabled={isDeleting}
-          aria-label="Delete task"
-          className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50/80 opacity-60 sm:opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all duration-150 cursor-pointer"
+          variant="danger"
+          size="sm"
+          rounded="md"
+          className={cn(
+            "opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
+            "sm:opacity-0 sm:group-hover:opacity-100",
+            // Always visible on mobile (touch devices don't hover)
+            "max-sm:opacity-60"
+          )}
         >
           {isDeleting ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <Icon icon={Loading03Icon} size="xs" className="animate-spin" />
           ) : (
-            <Trash2 className="w-3.5 h-3.5" />
+            <Icon icon={Delete02Icon} size="sm" />
           )}
-        </button>
+        </IconButton>
       </div>
     </div>
   );
-}
+});

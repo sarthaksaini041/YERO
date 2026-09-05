@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getCurrentUser } from "@/lib/supabase/server";
 import {
   createTaskSchema,
   updateTaskStatusSchema,
@@ -9,21 +9,22 @@ import {
 } from "@/lib/validations/task";
 import type { Task } from "@/db/schema";
 
-export async function getTasks(): Promise<{ data: Task[]; error?: string }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+export async function getTasks(providedUserId?: string): Promise<{ data: Task[]; error?: string }> {
+  let userId = providedUserId;
 
-  if (authError || !user) {
-    return { data: [], error: "Unauthorized" };
+  if (!userId) {
+    const user = await getCurrentUser();
+    if (!user) {
+      return { data: [], error: "Unauthorized" };
+    }
+    userId = user.id;
   }
 
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("tasks")
-    .select("*")
-    .eq("user_id", user.id)
+    .select("id, user_id, title, completed, created_at, updated_at")
+    .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
   if (error) {

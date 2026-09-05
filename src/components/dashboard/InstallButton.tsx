@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import { usePwa } from "@/components/pwa/PwaProvider";
-import { Download, Check } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
+import { Button } from "@/components/ui/button";
+import { Download02Icon, Tick02Icon } from "@hugeicons/core-free-icons";
 
 export function InstallButton() {
   const { isInstallable, isInstalled, installApp } = usePwa();
@@ -11,7 +13,6 @@ export function InstallButton() {
   if (isInstalled || (!isInstallable && !justInstalled)) {
     return null;
   }
-
 
   const handleInstall = async () => {
     const accepted = await installApp();
@@ -22,24 +23,25 @@ export function InstallButton() {
   };
 
   return (
-    <button
-      type="button"
+    <Button
+      variant="secondary"
+      size="sm"
       onClick={handleInstall}
-      aria-label="Install YERO App"
-      title="Install YERO App on your device"
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full liquid-glass-card border border-white/90 shadow-2xs text-xs font-medium text-slate-700 hover:text-slate-950 hover:bg-white/95 active:scale-95 transition-all cursor-pointer"
+      aria-label="Install YERO app on your device"
+      title="Install YERO App"
+      className="rounded-xl gap-1.5 text-[12px] h-9"
     >
       {justInstalled ? (
         <>
-          <Check className="w-3.5 h-3.5 text-emerald-600" />
-          <span className="text-emerald-700 font-semibold">Installed</span>
+          <Icon icon={Tick02Icon} size="xs" className="text-[var(--color-success)]" />
+          <span className="text-[var(--color-success)] font-semibold">Installed</span>
         </>
       ) : (
         <>
-          <Download className="w-3.5 h-3.5 text-slate-600" />
-          <span>Install App</span>
+          <Icon icon={Download02Icon} size="xs" />
+          <span>Install</span>
         </>
       )}
-    </button>
+    </Button>
   );
 }
