@@ -162,35 +162,6 @@ export function TaskList({ initialTasks, todayDate, totalCompletedAllTime }: Tas
 
   return (
     <div className="w-full">
-      {/* ── Mobile / Tablet Summary Banner (< lg) ── */}
-      <div className="lg:hidden mb-6 p-4 rounded-[var(--radius-lg)] bg-white border border-[var(--color-border)] shadow-[var(--shadow-xs)] flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[var(--color-accent-light)] text-[var(--color-accent)] flex items-center justify-center shrink-0">
-            <Icon icon={CheckmarkCircle01Icon} size="md" />
-          </div>
-          <div>
-            <div
-              className="text-xl font-bold leading-tight text-[var(--color-text-primary)]"
-              style={{ fontFamily: "var(--font-plus-jakarta), sans-serif" }}
-            >
-              {allTimeCompleted.toLocaleString()}
-            </div>
-            <div className="text-[12px] text-[var(--color-text-muted)] font-medium">
-              total tasks completed
-            </div>
-          </div>
-        </div>
-        {totalCount > 0 && (
-          <div className="text-right">
-            <div className="text-[13px] font-semibold text-[var(--color-text-primary)]">
-              {completedCount} / {totalCount} done
-            </div>
-            <div className="text-[11.5px] text-[var(--color-text-muted)]">
-              today ({progressPercent}%)
-            </div>
-          </div>
-        )}
-      </div>
 
       {/* ── Desktop Grid Layout (>= lg) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-10 items-start w-full">
