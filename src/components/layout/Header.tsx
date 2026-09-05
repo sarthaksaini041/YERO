@@ -16,6 +16,10 @@ export function Header() {
       ? "Notifications"
       : pathname.startsWith("/profile")
       ? "Profile"
+      : pathname.startsWith("/settings")
+      ? "Settings"
+      : pathname.startsWith("/connectors")
+      ? "Connectors"
       : "";
 
   return (

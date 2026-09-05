@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, boolean, timestamp, integer, date } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, boolean, timestamp, integer, date, jsonb, unique } from "drizzle-orm/pg-core";
 import { type InferSelectModel, type InferInsertModel } from "drizzle-orm";
 
 export const tasks = pgTable("tasks", {
@@ -68,3 +68,26 @@ export const notes = pgTable("notes", {
 
 export type Note = InferSelectModel<typeof notes>;
 export type NewNote = InferInsertModel<typeof notes>;
+
+// ─── User Connectors ────────────────────────────────────────────────────────
+
+export const userConnectors = pgTable(
+  "user_connectors",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull(),
+    platform: text("platform").notNull().$type<"leetcode" | "codechef" | "codeforces">(),
+    platformUsername: text("platform_username").notNull(),
+    status: text("status").notNull().default("connected").$type<"connected" | "error" | "syncing">(),
+    profileData: jsonb("profile_data"),
+    lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }),
+    lastSyncAttemptedAt: timestamp("last_sync_attempted_at", { withTimezone: true }),
+    errorMessage: text("error_message"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [unique("user_connectors_user_platform_unique").on(table.userId, table.platform)]
+);
+
+export type ConnectorRow = InferSelectModel<typeof userConnectors>;
+export type NewConnectorRow = InferInsertModel<typeof userConnectors>;

@@ -3,6 +3,7 @@ import {
   StickyNote01Icon,
   Notification03Icon,
   UserAccountIcon,
+  Settings03Icon,
 } from "@hugeicons/core-free-icons";
 
 export interface NavItemConfig {
@@ -38,6 +39,12 @@ export const NAV_ITEMS: NavItemConfig[] = [
     href: "/profile",
     label: "Profile",
     icon: UserAccountIcon,
+    exact: false,
+  },
+  {
+    href: "/settings",
+    label: "Settings",
+    icon: Settings03Icon,
     exact: false,
   },
 ];
