@@ -6,6 +6,7 @@ import { connectPlatform } from "@/actions/connectors";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
 import {
   Alert01Icon,
@@ -36,13 +37,11 @@ export function ConnectModal({
   const [error, setError] = React.useState<string | null>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  // Focus input on mount
   React.useEffect(() => {
     const timer = setTimeout(() => inputRef.current?.focus(), 100);
     return () => clearTimeout(timer);
   }, []);
 
-  // Close on Escape
   React.useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape" && !isSubmitting) onClose();
@@ -70,24 +69,22 @@ export function ConnectModal({
   };
 
   return (
-    // Backdrop
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-[3px]"
       onClick={(e) => {
         if (e.target === e.currentTarget && !isSubmitting) onClose();
       }}
     >
-      {/* Modal Panel */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 8 }}
+        initial={{ opacity: 0, scale: 0.96, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96, y: 8 }}
-        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-sm bg-white rounded-2xl border border-[var(--color-border)] shadow-[var(--shadow-lg)] overflow-hidden"
+        exit={{ opacity: 0, scale: 0.96, y: 10 }}
+        transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-sm bg-white rounded-[var(--radius-xl)] border border-[var(--color-border)] shadow-[var(--shadow-xl)] overflow-hidden"
         role="dialog"
         aria-modal="true"
         aria-label={`Connect ${platformLabel}`}
@@ -95,7 +92,7 @@ export function ConnectModal({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--color-border)]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 flex items-center justify-center shrink-0">
               {platformIcon}
             </div>
             <div>
@@ -108,20 +105,22 @@ export function ConnectModal({
             </div>
           </div>
 
-          <button
+          <IconButton
             type="button"
+            aria-label="Close"
             onClick={onClose}
             disabled={isSubmitting}
-            aria-label="Close"
-            className="flex items-center justify-center w-7 h-7 rounded-lg text-[var(--color-text-muted)] hover:bg-gray-100 hover:text-[var(--color-text-primary)] transition-colors disabled:opacity-40 cursor-pointer"
+            variant="ghost"
+            size="sm"
+            rounded="md"
           >
             <Icon icon={Cancel01Icon} size="sm" />
-          </button>
+          </IconButton>
         </div>
 
         {/* Body */}
-        <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4">
-          {/* Error alert */}
+        <form onSubmit={handleSubmit} className="px-5 py-5 space-y-4">
+          {/* Error */}
           <AnimatePresence>
             {error && (
               <motion.div
@@ -130,9 +129,9 @@ export function ConnectModal({
                 exit={{ opacity: 0, height: 0 }}
                 className="overflow-hidden"
               >
-                <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-[var(--color-danger-light)] border border-red-200 text-[12.5px] text-[var(--color-danger)]">
+                <div className="flex items-start gap-2.5 px-3.5 py-2.5 rounded-[var(--radius-md)] bg-[var(--color-danger-light)] border border-[var(--color-danger-border)] text-[12.5px] text-[var(--color-danger)]">
                   <Icon icon={Alert01Icon} size="sm" className="shrink-0 mt-px" />
-                  <span>{error}</span>
+                  <span className="font-medium">{error}</span>
                 </div>
               </motion.div>
             )}
@@ -141,7 +140,7 @@ export function ConnectModal({
           <div className="space-y-1.5">
             <label
               htmlFor="connector-username"
-              className="block text-[12.5px] font-medium text-[var(--color-text-secondary)]"
+              className="block text-[12px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wide"
             >
               {platformLabel} Username
             </label>
@@ -161,12 +160,11 @@ export function ConnectModal({
               }}
               disabled={isSubmitting}
               placeholder={`Enter your ${platformLabel} username`}
-              className={cn("text-[13.5px]", error && "border-[var(--color-danger)]")}
               error={!!error}
             />
           </div>
 
-          <div className="flex gap-2.5">
+          <div className="flex gap-2.5 pt-1">
             <Button
               type="button"
               variant="secondary"
@@ -181,13 +179,12 @@ export function ConnectModal({
               type="submit"
               size="sm"
               disabled={!username.trim() || isSubmitting}
-              loading={isSubmitting}
               className="flex-1"
             >
               {isSubmitting ? (
                 <>
                   <Icon icon={Loading03Icon} size="xs" className="animate-spin" />
-                  Connecting...
+                  Connecting…
                 </>
               ) : (
                 <>

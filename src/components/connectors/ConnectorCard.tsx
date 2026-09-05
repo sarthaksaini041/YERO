@@ -27,22 +27,24 @@ interface ConnectorCardProps {
   onConnectorUpdate: (connector: ConnectorRecord | null) => void;
 }
 
-/** Platform accent colors */
-const PLATFORM_COLORS: Record<Platform, { bg: string; text: string; border: string }> = {
+const PLATFORM_COLORS: Record<Platform, { bg: string; text: string; border: string; iconBg: string }> = {
   leetcode: {
     bg: "bg-amber-50",
-    text: "text-amber-600",
-    border: "border-amber-100",
+    text: "text-amber-700",
+    border: "border-amber-200",
+    iconBg: "bg-amber-50 border-amber-100",
   },
   codechef: {
-    bg: "bg-[#5B4638]/10",
+    bg: "bg-[#5B4638]/5",
     text: "text-[#5B4638]",
     border: "border-[#5B4638]/20",
+    iconBg: "bg-[#5B4638]/8 border-[#5B4638]/15",
   },
   codeforces: {
     bg: "bg-blue-50",
-    text: "text-blue-600",
-    border: "border-blue-100",
+    text: "text-blue-700",
+    border: "border-blue-200",
+    iconBg: "bg-blue-50 border-blue-100",
   },
 };
 
@@ -97,20 +99,18 @@ export function ConnectorCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        "rounded-2xl bg-white border transition-shadow duration-200",
-        isConnected
-          ? "border-[var(--color-border)] shadow-[var(--shadow-sm)]"
-          : "border-[var(--color-border)] shadow-[var(--shadow-xs)]"
+        "bg-white rounded-[var(--radius-lg)] border border-[var(--color-border)] overflow-hidden",
+        "shadow-[var(--shadow-xs)] transition-shadow duration-200",
+        isConnected && "shadow-[var(--shadow-sm)]"
       )}
     >
-      {/* Card Header */}
-      <div className="flex items-start gap-3.5 px-4 sm:px-5 py-4">
-        {/* Logo */}
+      {/* ── Card Header ── */}
+      <div className="flex items-center gap-4 px-5 py-4">
+        {/* Platform logo */}
         <div
           className={cn(
-            "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border",
-            colors.bg,
-            colors.border
+            "w-11 h-11 rounded-[var(--radius-md)] flex items-center justify-center shrink-0 border",
+            colors.iconBg
           )}
         >
           <PlatformLogo platform={platform} size={26} />
@@ -119,19 +119,16 @@ export function ConnectorCard({
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-[14.5px] font-semibold text-[var(--color-text-primary)]">
-              {label}
-            </h3>
+            <h3 className="text-[15px] font-semibold text-[var(--color-text-primary)]">{label}</h3>
 
-            {/* Status badge */}
             <AnimatePresence mode="wait">
               {isConnected && (
                 <motion.span
                   key="connected"
-                  initial={{ opacity: 0, scale: 0.8 }}
+                  initial={{ opacity: 0, scale: 0.85 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-[var(--color-success-light)] text-[var(--color-success)] text-[11px] font-semibold border border-emerald-200"
+                  exit={{ opacity: 0, scale: 0.85 }}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-sm)] bg-[var(--color-success-light)] text-[var(--color-success)] text-[11px] font-semibold border border-[var(--color-success-border)]"
                 >
                   <Icon icon={CheckmarkCircle01Icon} size="xs" />
                   Connected
@@ -140,10 +137,10 @@ export function ConnectorCard({
               {hasError && (
                 <motion.span
                   key="error"
-                  initial={{ opacity: 0, scale: 0.8 }}
+                  initial={{ opacity: 0, scale: 0.85 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-[var(--color-danger-light)] text-[var(--color-danger)] text-[11px] font-semibold border border-red-200"
+                  exit={{ opacity: 0, scale: 0.85 }}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-sm)] bg-[var(--color-danger-light)] text-[var(--color-danger)] text-[11px] font-semibold border border-[var(--color-danger-border)]"
                 >
                   <Icon icon={Alert01Icon} size="xs" />
                   Error
@@ -154,13 +151,13 @@ export function ConnectorCard({
 
           <p className="text-[12.5px] text-[var(--color-text-muted)] mt-0.5 leading-snug">
             {isConnected && connector?.platformUsername
-              ? `@${connector.platformUsername}`
+              ? `Synced as @${connector.platformUsername}`
               : description}
           </p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+        {/* Actions */}
+        <div className="flex items-center gap-1.5 shrink-0">
           {isConnected ? (
             <>
               <Button
@@ -168,8 +165,8 @@ export function ConnectorCard({
                 size="icon-sm"
                 onClick={handleSync}
                 disabled={isSyncing || isDisconnecting}
-                aria-label="Sync connector"
-                title="Refresh data"
+                aria-label="Sync stats"
+                title="Refresh stats"
               >
                 <Icon
                   icon={RefreshIcon}
@@ -182,12 +179,11 @@ export function ConnectorCard({
                 size="sm"
                 onClick={handleDisconnect}
                 disabled={isDisconnecting || isSyncing}
-                loading={isDisconnecting}
               >
                 {isDisconnecting ? (
                   <>
                     <Icon icon={Loading03Icon} size="xs" className="animate-spin" />
-                    Removing...
+                    Removing…
                   </>
                 ) : (
                   <>
@@ -206,7 +202,7 @@ export function ConnectorCard({
         </div>
       </div>
 
-      {/* Connected Stats */}
+      {/* ── Stats Grid ── */}
       <AnimatePresence>
         {isConnected && stats && (
           <motion.div
@@ -214,48 +210,44 @@ export function ConnectorCard({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             className="overflow-hidden"
           >
-            <div className="mx-4 sm:mx-5 mb-4 pt-3 border-t border-[var(--color-border)]/60">
-              <div className="grid grid-cols-3 gap-2">
+            <div className="px-5 pb-4 border-t border-[var(--color-border)]">
+              <div className="grid grid-cols-3 gap-2 mt-4">
+                <StatPill label="Solved" value={stats.problemsSolved} colors={colors} />
                 <StatPill
-                  label="Solved"
-                  value={stats.problemsSolved}
-                  platform={platform}
-                />
-                <StatPill
-                  label={platform === "codeforces" ? "Rating" : platform === "codechef" ? "Rating" : "Contest Rating"}
+                  label={platform === "leetcode" ? "Contest Rating" : "Rating"}
                   value={stats.rating}
-                  platform={platform}
+                  colors={colors}
                 />
-                <StatPill
-                  label="Contests"
-                  value={stats.contestsParticipated}
-                  platform={platform}
-                />
+                <StatPill label="Contests" value={stats.contestsParticipated} colors={colors} />
                 {platform === "leetcode" && stats.easySolved !== undefined && (
                   <>
-                    <StatPill label="Easy" value={stats.easySolved} platform={platform} color="text-emerald-600" />
-                    <StatPill label="Medium" value={stats.mediumSolved} platform={platform} color="text-amber-600" />
-                    <StatPill label="Hard" value={stats.hardSolved} platform={platform} color="text-rose-600" />
+                    <StatPill label="Easy" value={stats.easySolved} colors={{ ...colors, text: "text-emerald-600" }} />
+                    <StatPill label="Medium" value={stats.mediumSolved} colors={{ ...colors, text: "text-amber-600" }} />
+                    <StatPill label="Hard" value={stats.hardSolved} colors={{ ...colors, text: "text-rose-600" }} />
                   </>
                 )}
                 {platform === "codeforces" && (
-                  <StatPill label="Max Rating" value={stats.maxRating} platform={platform} />
+                  <StatPill label="Max Rating" value={stats.maxRating} colors={colors} />
                 )}
                 {platform === "codechef" && (
-                  <StatPill label="Global Rank" value={stats.globalRank} platform={platform} />
+                  <StatPill label="Global Rank" value={stats.globalRank} colors={colors} />
                 )}
               </div>
 
-              {/* Rank label */}
               {stats.rank && (
-                <p className="mt-2 text-[11.5px] text-[var(--color-text-muted)]">
+                <p className="mt-3 text-[12px] text-[var(--color-text-muted)]">
                   Rank:{" "}
-                  <span className={cn("font-semibold", colors.text)}>
-                    {stats.rank}
-                  </span>
+                  <span className={cn("font-semibold", colors.text)}>{stats.rank}</span>
+                </p>
+              )}
+
+              {/* Last synced */}
+              {connector?.lastSyncedAt && (
+                <p className="mt-1.5 text-[11px] text-[var(--color-text-faint)]">
+                  Last synced {formatRelativeTime(connector.lastSyncedAt)}
                 </p>
               )}
             </div>
@@ -263,7 +255,7 @@ export function ConnectorCard({
         )}
       </AnimatePresence>
 
-      {/* Error state (connector has error from last sync) */}
+      {/* ── Error Message ── */}
       <AnimatePresence>
         {(hasError || localError) && (
           <motion.div
@@ -273,46 +265,37 @@ export function ConnectorCard({
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="mx-4 sm:mx-5 mb-4 px-3 py-2 rounded-xl bg-[var(--color-danger-light)] border border-red-200">
-              <p className="text-[12px] text-[var(--color-danger)]">
-                {localError ?? connector?.errorMessage ?? "Last sync failed. Try reconnecting."}
-              </p>
+            <div className="px-5 pb-4">
+              <div className="px-3.5 py-2.5 rounded-[var(--radius-md)] bg-[var(--color-danger-light)] border border-[var(--color-danger-border)]">
+                <p className="text-[12.5px] text-[var(--color-danger)] font-medium">
+                  {localError ?? connector?.errorMessage ?? "Last sync failed. Try reconnecting."}
+                </p>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Last synced */}
-      {isConnected && connector?.lastSyncedAt && (
-        <div className="px-4 sm:px-5 pb-3 -mt-2">
-          <p className="text-[11px] text-[var(--color-text-faint)]">
-            Last synced {formatRelativeTime(connector.lastSyncedAt)}
-          </p>
-        </div>
-      )}
     </motion.div>
   );
 }
 
-/** Small stat display pill */
 function StatPill({
   label,
   value,
-  color,
+  colors,
 }: {
   label: string;
   value?: number;
-  platform: Platform;
-  color?: string;
+  colors: { bg: string; text: string; border: string; iconBg: string };
 }) {
   if (value === undefined || value === null) return null;
 
   return (
-    <div className="flex flex-col items-center px-2 py-2 rounded-xl bg-[var(--color-surface-muted)] border border-[var(--color-border)]">
-      <span className={cn("text-[13px] font-bold text-[var(--color-text-primary)]", color)}>
+    <div className="flex flex-col items-center px-2 py-2.5 rounded-[var(--radius-md)] bg-[var(--color-surface-muted)] border border-[var(--color-border)]">
+      <span className={cn("text-[14px] font-bold", colors.text)}>
         {value.toLocaleString()}
       </span>
-      <span className="text-[10.5px] text-[var(--color-text-faint)] mt-0.5 leading-none">
+      <span className="text-[10.5px] text-[var(--color-text-faint)] mt-0.5 leading-none text-center">
         {label}
       </span>
     </div>

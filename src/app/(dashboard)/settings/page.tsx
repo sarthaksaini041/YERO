@@ -20,7 +20,7 @@ export default async function SettingsPage() {
   const { data: connectors } = await getConnectors();
 
   return (
-    <AppShell maxWidth="md">
+    <AppShell>
       <SettingsContainer initialConnectors={connectors} />
     </AppShell>
   );

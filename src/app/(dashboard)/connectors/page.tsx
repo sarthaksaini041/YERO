@@ -20,7 +20,7 @@ export default async function ConnectorsPage() {
   const { data: connectors } = await getConnectors();
 
   return (
-    <AppShell maxWidth="md">
+    <AppShell>
       <ConnectorsContainer initialConnectors={connectors} />
     </AppShell>
   );

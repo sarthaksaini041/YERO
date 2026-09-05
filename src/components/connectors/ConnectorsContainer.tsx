@@ -37,7 +37,6 @@ interface ConnectorsContainerProps {
 }
 
 export function ConnectorsContainer({ initialConnectors }: ConnectorsContainerProps) {
-  // Map of platform → connector record (null = not connected)
   const [connectors, setConnectors] = React.useState<
     Record<Platform, ConnectorRecord | null>
   >(() => {
@@ -64,17 +63,14 @@ export function ConnectorsContainer({ initialConnectors }: ConnectorsContainerPr
   };
 
   return (
-    <>
-      {/* Page Title */}
-      <div className="mb-5">
-        <h1 className="text-heading-lg">Connectors</h1>
-        <p className="text-[13.5px] text-[var(--color-text-muted)] mt-1">
-          Link your competitive programming accounts to sync your stats automatically.
-        </p>
+    <div className="space-y-5">
+      {/* ── Page Header ── */}
+      <div>
+        <h1 className="text-heading-xl">Connectors</h1>
       </div>
 
-      {/* Platform Cards */}
-      <div className="space-y-3">
+      {/* ── Platform Cards Grid ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 items-start">
         {PLATFORMS.map((meta) => (
           <ConnectorCard
             key={meta.platform}
@@ -88,19 +84,19 @@ export function ConnectorsContainer({ initialConnectors }: ConnectorsContainerPr
         ))}
       </div>
 
-      {/* Connect Modal */}
+      {/* ── Connect Modal ── */}
       <AnimatePresence>
         {activeModal && (
           <ConnectModal
             key={activeModal}
             platform={activeModal}
             platformLabel={PLATFORMS.find((p) => p.platform === activeModal)!.label}
-            platformIcon={<PlatformLogo platform={activeModal} size={26} />}
+            platformIcon={<PlatformLogo platform={activeModal} size={28} />}
             onClose={() => setActiveModal(null)}
             onSuccess={(c) => handleSuccess(activeModal, c)}
           />
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }
