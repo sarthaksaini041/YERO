@@ -11,8 +11,8 @@ function parseStars(starsStr: string | undefined): number | undefined {
 }
 
 /**
- * Maps the CodeChef public profile API response to the normalized ConnectorProfile.
- * Only maps fields that are present in the response — never fabricates data.
+ * Maps the CodeChef profile data to the normalized ConnectorProfile.
+ * Only maps fields that are present — never fabricates data.
  */
 export function mapCodeChefResponse(
   username: string,
@@ -20,7 +20,7 @@ export function mapCodeChefResponse(
 ): ConnectorProfile {
   const stars = parseStars(data.stars);
 
-  // Build star label for rank field
+  // Build star label for rank field (e.g. "7-star")
   const rankLabel = data.stars ? data.stars.replace("★", "-star").trim() : undefined;
 
   // Count contests from rating history
@@ -31,6 +31,7 @@ export function mapCodeChefResponse(
     username,
     profileUrl: `https://www.codechef.com/users/${username}`,
     displayName: data.name ?? undefined,
+    avatarUrl: data.avatarUrl ?? undefined,
     country: data.countryName ?? undefined,
     stars,
 
@@ -43,6 +44,8 @@ export function mapCodeChefResponse(
       problemsSolved: data.userDetails?.fullySolved ?? undefined,
       contestsParticipated,
     },
+
+    lastSyncedAt: new Date().toISOString(),
 
     metadata: {
       starsLabel: data.stars ?? undefined,

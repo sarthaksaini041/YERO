@@ -30,6 +30,11 @@ const PLATFORMS: PlatformMeta[] = [
     label: "Codeforces",
     description: "Connect Codeforces to track your rating, rank, and contest performance.",
   },
+  {
+    platform: "github",
+    label: "GitHub",
+    description: "Track your public repositories, stars, followers, and languages.",
+  },
 ];
 
 interface ConnectorsContainerProps {
@@ -44,6 +49,7 @@ export function ConnectorsContainer({ initialConnectors }: ConnectorsContainerPr
       leetcode: null,
       codechef: null,
       codeforces: null,
+      github: null,
     };
     for (const c of initialConnectors) {
       map[c.platform] = c;

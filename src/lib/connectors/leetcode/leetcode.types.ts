@@ -1,31 +1,16 @@
-// LeetCode raw GraphQL API response types
-// Source: LeetCode's public GraphQL endpoint (no auth required for public profiles)
+// LeetCode raw GraphQL API response types (2026 schema)
+// Source: LeetCode public GraphQL endpoint
 
-export interface LeetCodeUserPublicProfile {
-  username: string;
-  githubUrl: string | null;
-  twitterUrl: string | null;
-  linkedinUrl: string | null;
-  profile: {
-    ranking: number;
-    userAvatar: string | null;
-    realName: string | null;
-    aboutMe: string | null;
-    school: string | null;
-    websites: string[];
-    countryName: string | null;
-    company: string | null;
-    jobTitle: string | null;
-    skillTags: string[];
-    postViewCount: number;
-    postViewCountDiff: number;
-    reputation: number;
-    reputationDiff: number;
-    solutionCount: number;
-    solutionCountDiff: number;
-    categoryDiscussCount: number;
-    categoryDiscussCountDiff: number;
-  };
+export interface LeetCodeUserProfile {
+  ranking?: number;
+  userAvatar?: string | null;
+  realName?: string | null;
+  aboutMe?: string | null;
+  countryName?: string | null;
+  reputation?: number;
+  solutionCount?: number;
+  categoryDiscussCount?: number;
+  skillTags?: string[];
 }
 
 export interface LeetCodeSubmitStats {
@@ -55,28 +40,36 @@ export interface LeetCodeUserContestRanking {
 export interface LeetCodeBadge {
   id: string;
   name: string;
-  shortName: string;
+  shortName?: string;
   displayName: string;
   icon: string;
-  hoverText: string | null;
-  medal: {
-    slug: string;
-    config: { iconGif: string; iconGifBackground: string } | null;
+  creationDate?: string | null;
+}
+
+export interface LeetCodeMatchedUser {
+  username: string;
+  githubUrl?: string | null;
+  twitterUrl?: string | null;
+  linkedinUrl?: string | null;
+  profile?: LeetCodeUserProfile | null;
+  submitStats?: LeetCodeSubmitStats;
+  badges?: LeetCodeBadge[];
+  activeBadge?: {
+    id: string;
+    displayName: string;
   } | null;
-  creationDate: string | null;
-  isDisplayed: boolean;
-  timestamp: number;
+}
+
+export interface LeetCodeGraphQLError {
+  message: string;
+  locations?: { line: number; column: number }[];
+  path?: (string | number)[];
 }
 
 export interface LeetCodeGraphQLResponse {
-  data: {
-    userPublicProfile: LeetCodeUserPublicProfile | null;
-    matchedUser: {
-      username: string;
-      submitStats: LeetCodeSubmitStats;
-      badges: LeetCodeBadge[];
-      activeBadge: LeetCodeBadge | null;
-    } | null;
-    userContestRanking: LeetCodeUserContestRanking | null;
-  };
+  data?: {
+    matchedUser?: LeetCodeMatchedUser | null;
+    userContestRanking?: LeetCodeUserContestRanking | null;
+  } | null;
+  errors?: LeetCodeGraphQLError[];
 }

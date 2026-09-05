@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient, getCurrentUser } from "@/lib/supabase/server";
 import { connectConnectorSchema, platformSchema } from "@/lib/validations/connector";
 import { getConnectorService } from "@/lib/connectors/connector.factory";
-import type { Platform, ConnectorProfile } from "@/lib/connectors/types";
+import type { Platform, ConnectorProfile, ConnectorErrorCode } from "@/lib/connectors/types";
 
 export interface ConnectorRecord {
   id: string;
@@ -61,7 +61,12 @@ export async function getConnectors(): Promise<{
 export async function connectPlatform(
   platformRaw: string,
   usernameRaw: string
-): Promise<{ success: boolean; connector?: ConnectorRecord; error?: string }> {
+): Promise<{
+  success: boolean;
+  connector?: ConnectorRecord;
+  error?: string;
+  errorCode?: ConnectorErrorCode;
+}> {
   const validation = connectConnectorSchema.safeParse({
     platform: platformRaw,
     username: usernameRaw,
@@ -70,14 +75,21 @@ export async function connectPlatform(
   if (!validation.success) {
     return {
       success: false,
-      error: validation.error.issues[0]?.message ?? "Invalid input.",
+      error: validation.error.issues[0]?.message ?? "Invalid username or profile link.",
+      errorCode: "INVALID_INPUT",
     };
   }
 
   const { platform, username } = validation.data;
 
   const user = await getCurrentUser();
-  if (!user) return { success: false, error: "Please log in to connect platforms." };
+  if (!user) {
+    return {
+      success: false,
+      error: "Please log in to connect platforms.",
+      errorCode: "AUTH_REQUIRED",
+    };
+  }
 
   const supabase = await createClient();
 
@@ -98,17 +110,27 @@ export async function connectPlatform(
   const result = await service.fetchProfile(username);
 
   if (!result.success) {
+    const errorMsg = result.error.message;
     await supabase
       .from("user_connectors")
       .update({
         status: "error",
-        error_message: result.error,
+        error_message: errorMsg,
         updated_at: new Date().toISOString(),
       })
       .eq("user_id", user.id)
       .eq("platform", platform);
 
-    return { success: false, error: result.error };
+    revalidatePath("/settings");
+    revalidatePath("/connectors");
+    revalidatePath("/coding");
+    revalidatePath("/developer");
+
+    return {
+      success: false,
+      error: errorMsg,
+      errorCode: result.error.code,
+    };
   }
 
   const now = new Date().toISOString();
@@ -132,11 +154,17 @@ export async function connectPlatform(
     .single();
 
   if (dbError) {
-    return { success: false, error: dbError.message };
+    return {
+      success: false,
+      error: dbError.message,
+      errorCode: "UNKNOWN_ERROR",
+    };
   }
 
   revalidatePath("/settings");
   revalidatePath("/connectors");
+  revalidatePath("/coding");
+  revalidatePath("/developer");
 
   const connector: ConnectorRecord = {
     id: saved.id,
@@ -179,34 +207,62 @@ export async function disconnectPlatform(
 
   revalidatePath("/settings");
   revalidatePath("/connectors");
+  revalidatePath("/coding");
+  revalidatePath("/developer");
   return { success: true };
 }
 
 /**
  * Re-sync a connected platform: re-fetch and update the stored profile data.
+ * Includes a 10s cooldown to prevent abuse.
  */
 export async function syncConnector(
   platformRaw: string
-): Promise<{ success: boolean; connector?: ConnectorRecord; error?: string }> {
+): Promise<{
+  success: boolean;
+  connector?: ConnectorRecord;
+  error?: string;
+  errorCode?: ConnectorErrorCode;
+}> {
   const platformResult = platformSchema.safeParse(platformRaw);
-  if (!platformResult.success) return { success: false, error: "Unsupported platform." };
+  if (!platformResult.success) {
+    return { success: false, error: "Unsupported platform.", errorCode: "INVALID_INPUT" };
+  }
   const platform = platformResult.data;
 
   const user = await getCurrentUser();
-  if (!user) return { success: false, error: "Unauthorized" };
+  if (!user) {
+    return { success: false, error: "Unauthorized", errorCode: "AUTH_REQUIRED" };
+  }
 
   const supabase = await createClient();
 
-  // Get current username from DB
+  // Get current record from DB
   const { data: existing } = await supabase
     .from("user_connectors")
-    .select("platform_username")
+    .select("platform_username, last_sync_attempted_at, status")
     .eq("user_id", user.id)
     .eq("platform", platform)
     .maybeSingle();
 
   if (!existing) {
-    return { success: false, error: "Connector not found. Please connect the platform first." };
+    return {
+      success: false,
+      error: "Connector not found. Please connect the platform first.",
+      errorCode: "PROFILE_NOT_FOUND",
+    };
+  }
+
+  // Prevent spamming sync within 10 seconds
+  if (existing.last_sync_attempted_at) {
+    const elapsedMs = Date.now() - new Date(existing.last_sync_attempted_at).getTime();
+    if (elapsedMs < 10000 && existing.status === "connected") {
+      return {
+        success: false,
+        error: "Stats were synced recently. Please wait a few seconds before refreshing.",
+        errorCode: "RATE_LIMITED",
+      };
+    }
   }
 
   return connectPlatform(platform, existing.platform_username);

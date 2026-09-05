@@ -76,7 +76,7 @@ export const userConnectors = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id").notNull(),
-    platform: text("platform").notNull().$type<"leetcode" | "codechef" | "codeforces">(),
+    platform: text("platform").notNull().$type<"leetcode" | "codechef" | "codeforces" | "github">(),
     platformUsername: text("platform_username").notNull(),
     status: text("status").notNull().default("connected").$type<"connected" | "error" | "syncing">(),
     profileData: jsonb("profile_data"),

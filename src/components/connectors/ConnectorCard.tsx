@@ -27,7 +27,10 @@ interface ConnectorCardProps {
   onConnectorUpdate: (connector: ConnectorRecord | null) => void;
 }
 
-const PLATFORM_COLORS: Record<Platform, { bg: string; text: string; border: string; iconBg: string }> = {
+const PLATFORM_COLORS: Record<
+  Platform,
+  { bg: string; text: string; border: string; iconBg: string }
+> = {
   leetcode: {
     bg: "bg-amber-50",
     text: "text-amber-700",
@@ -46,7 +49,28 @@ const PLATFORM_COLORS: Record<Platform, { bg: string; text: string; border: stri
     border: "border-blue-200",
     iconBg: "bg-blue-50 border-blue-100",
   },
+  github: {
+    bg: "bg-slate-50",
+    text: "text-slate-900",
+    border: "border-slate-200",
+    iconBg: "bg-slate-100 border-slate-200",
+  },
 };
+
+/** Normalizes raw error strings so users never see technical "HTTP 400" text. */
+function sanitizeDisplayError(rawError: string | null | undefined): string {
+  if (!rawError) return "Unable to sync profile. Please try again.";
+  if (rawError.includes("HTTP 400")) {
+    return "Profile not found or invalid format. Please check your username.";
+  }
+  if (rawError.includes("HTTP 429") || rawError.includes("rate limit")) {
+    return "Platform rate limit reached. Please try again in a few moments.";
+  }
+  if (rawError.includes("UPSTREAM_TIMEOUT") || rawError.includes("timed out")) {
+    return "Connection timed out. The platform may be slow. Please try again.";
+  }
+  return rawError;
+}
 
 export function ConnectorCard({
   platform,
@@ -71,26 +95,41 @@ export function ConnectorCard({
     if (isSyncing) return;
     setIsSyncing(true);
     setLocalError(null);
-    const result = await syncConnector(platform);
-    setIsSyncing(false);
-    if (result.success && result.connector) {
-      onConnectorUpdate(result.connector);
-    } else {
-      setLocalError(result.error ?? "Sync failed. Please try again.");
+
+    try {
+      const result = await syncConnector(platform);
+      if (result.success && result.connector) {
+        onConnectorUpdate(result.connector);
+        setLocalError(null);
+      } else {
+        setLocalError(sanitizeDisplayError(result.error));
+      }
+    } catch {
+      setLocalError("Sync failed. Please check your internet connection and try again.");
+    } finally {
+      setIsSyncing(false);
     }
   };
 
   const handleDisconnect = async () => {
     if (isDisconnecting) return;
     setIsDisconnecting(true);
-    const result = await disconnectPlatform(platform);
-    setIsDisconnecting(false);
-    if (result.success) {
-      onConnectorUpdate(null);
-    } else {
-      setLocalError(result.error ?? "Failed to disconnect.");
+    try {
+      const result = await disconnectPlatform(platform);
+      if (result.success) {
+        onConnectorUpdate(null);
+        setLocalError(null);
+      } else {
+        setLocalError(result.error ?? "Failed to disconnect.");
+      }
+    } catch {
+      setLocalError("Failed to disconnect platform.");
+    } finally {
+      setIsDisconnecting(false);
     }
   };
+
+  const displayError = localError ?? (hasError ? sanitizeDisplayError(connector?.errorMessage) : null);
 
   return (
     <motion.div
@@ -122,7 +161,18 @@ export function ConnectorCard({
             <h3 className="text-[15px] font-semibold text-[var(--color-text-primary)]">{label}</h3>
 
             <AnimatePresence mode="wait">
-              {isConnected && (
+              {isSyncing ? (
+                <motion.span
+                  key="syncing"
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.85 }}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-sm)] bg-sky-50 text-sky-700 text-[11px] font-semibold border border-sky-200"
+                >
+                  <Icon icon={Loading03Icon} size="xs" className="animate-spin" />
+                  Syncing…
+                </motion.span>
+              ) : isConnected ? (
                 <motion.span
                   key="connected"
                   initial={{ opacity: 0, scale: 0.85 }}
@@ -133,24 +183,23 @@ export function ConnectorCard({
                   <Icon icon={CheckmarkCircle01Icon} size="xs" />
                   Connected
                 </motion.span>
-              )}
-              {hasError && (
+              ) : hasError ? (
                 <motion.span
                   key="error"
                   initial={{ opacity: 0, scale: 0.85 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.85 }}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-sm)] bg-[var(--color-danger-light)] text-[var(--color-danger)] text-[11px] font-semibold border border-[var(--color-danger-border)]"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-sm)] bg-amber-50 text-amber-700 text-[11px] font-semibold border border-amber-200"
                 >
                   <Icon icon={Alert01Icon} size="xs" />
-                  Error
+                  Unable to sync
                 </motion.span>
-              )}
+              ) : null}
             </AnimatePresence>
           </div>
 
           <p className="text-[12.5px] text-[var(--color-text-muted)] mt-0.5 leading-snug">
-            {isConnected && connector?.platformUsername
+            {connector?.platformUsername
               ? `Synced as @${connector.platformUsername}`
               : description}
           </p>
@@ -193,6 +242,31 @@ export function ConnectorCard({
                 )}
               </Button>
             </>
+          ) : hasError && connector?.platformUsername ? (
+            <>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleSync}
+                disabled={isSyncing || isDisconnecting}
+                title="Retry syncing profile"
+              >
+                <Icon
+                  icon={RefreshIcon}
+                  size="xs"
+                  className={cn(isSyncing && "animate-spin")}
+                />
+                {isSyncing ? "Retrying…" : "Retry"}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onConnect}
+                disabled={isSyncing || isDisconnecting}
+              >
+                Change
+              </Button>
+            </>
           ) : (
             <Button size="sm" onClick={onConnect}>
               <Icon icon={Link01Icon} size="xs" />
@@ -215,32 +289,75 @@ export function ConnectorCard({
           >
             <div className="px-5 pb-4 border-t border-[var(--color-border)]">
               <div className="grid grid-cols-3 gap-2 mt-4">
-                <StatPill label="Solved" value={stats.problemsSolved} colors={colors} />
-                <StatPill
-                  label={platform === "leetcode" ? "Contest Rating" : "Rating"}
-                  value={stats.rating}
-                  colors={colors}
-                />
-                <StatPill label="Contests" value={stats.contestsParticipated} colors={colors} />
-                {platform === "leetcode" && stats.easySolved !== undefined && (
+                {platform === "github" ? (
                   <>
-                    <StatPill label="Easy" value={stats.easySolved} colors={{ ...colors, text: "text-emerald-600" }} />
-                    <StatPill label="Medium" value={stats.mediumSolved} colors={{ ...colors, text: "text-amber-600" }} />
-                    <StatPill label="Hard" value={stats.hardSolved} colors={{ ...colors, text: "text-rose-600" }} />
+                    <StatPill label="Repos" value={stats.repos ?? stats.problemsSolved} colors={colors} />
+                    <StatPill label="Followers" value={stats.followers} colors={colors} />
+                    <StatPill label="Stars" value={stats.starsReceived} colors={{ ...colors, text: "text-amber-600" }} />
+                    {stats.following !== undefined && (
+                      <StatPill label="Following" value={stats.following} colors={colors} />
+                    )}
                   </>
-                )}
-                {platform === "codeforces" && (
-                  <StatPill label="Max Rating" value={stats.maxRating} colors={colors} />
-                )}
-                {platform === "codechef" && (
-                  <StatPill label="Global Rank" value={stats.globalRank} colors={colors} />
+                ) : (
+                  <>
+                    <StatPill label="Solved" value={stats.problemsSolved} colors={colors} />
+                    <StatPill
+                      label={platform === "leetcode" ? "Contest Rating" : "Rating"}
+                      value={stats.rating}
+                      colors={colors}
+                    />
+                    <StatPill label="Contests" value={stats.contestsParticipated} colors={colors} />
+                    {platform === "leetcode" && stats.easySolved !== undefined && (
+                      <>
+                        <StatPill
+                          label="Easy"
+                          value={stats.easySolved}
+                          colors={{ ...colors, text: "text-emerald-600" }}
+                        />
+                        <StatPill
+                          label="Medium"
+                          value={stats.mediumSolved}
+                          colors={{ ...colors, text: "text-amber-600" }}
+                        />
+                        <StatPill
+                          label="Hard"
+                          value={stats.hardSolved}
+                          colors={{ ...colors, text: "text-rose-600" }}
+                        />
+                      </>
+                    )}
+                    {platform === "codeforces" && (
+                      <StatPill label="Max Rating" value={stats.maxRating} colors={colors} />
+                    )}
+                    {platform === "codechef" && (
+                      <StatPill label="Global Rank" value={stats.globalRank} colors={colors} />
+                    )}
+                  </>
                 )}
               </div>
 
+              {platform === "github" && typeof profile?.metadata?.bio === "string" && (
+                <p className="mt-2.5 text-[12px] text-[var(--color-text-muted)] line-clamp-2">
+                  {profile.metadata.bio}
+                </p>
+              )}
+
+              {platform === "github" && Array.isArray(profile?.metadata?.topLanguages) && (profile.metadata.topLanguages as string[]).length > 0 && (
+                <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                  {(profile.metadata.topLanguages as string[]).map((lang) => (
+                    <span
+                      key={lang}
+                      className="text-[10.5px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-medium"
+                    >
+                      {lang}
+                    </span>
+                  ))}
+                </div>
+              )}
+
               {stats.rank && (
                 <p className="mt-3 text-[12px] text-[var(--color-text-muted)]">
-                  Rank:{" "}
-                  <span className={cn("font-semibold", colors.text)}>{stats.rank}</span>
+                  Rank: <span className={cn("font-semibold", colors.text)}>{stats.rank}</span>
                 </p>
               )}
 
@@ -257,7 +374,7 @@ export function ConnectorCard({
 
       {/* ── Error Message ── */}
       <AnimatePresence>
-        {(hasError || localError) && (
+        {displayError && (
           <motion.div
             key="error-msg"
             initial={{ opacity: 0, height: 0 }}
@@ -266,10 +383,21 @@ export function ConnectorCard({
             className="overflow-hidden"
           >
             <div className="px-5 pb-4">
-              <div className="px-3.5 py-2.5 rounded-[var(--radius-md)] bg-[var(--color-danger-light)] border border-[var(--color-danger-border)]">
-                <p className="text-[12.5px] text-[var(--color-danger)] font-medium">
-                  {localError ?? connector?.errorMessage ?? "Last sync failed. Try reconnecting."}
-                </p>
+              <div className="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-[var(--radius-md)] bg-amber-50/80 border border-amber-200 text-[12.5px] text-amber-900">
+                <div className="flex items-start gap-2 min-w-0">
+                  <Icon icon={Alert01Icon} size="sm" className="shrink-0 mt-0.5 text-amber-600" />
+                  <p className="font-medium leading-snug">{displayError}</p>
+                </div>
+                {connector?.platformUsername && (
+                  <button
+                    type="button"
+                    onClick={handleSync}
+                    disabled={isSyncing}
+                    className="shrink-0 text-[11.5px] font-semibold text-amber-800 hover:text-amber-950 underline underline-offset-2 disabled:opacity-50"
+                  >
+                    {isSyncing ? "Retrying…" : "Retry"}
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>

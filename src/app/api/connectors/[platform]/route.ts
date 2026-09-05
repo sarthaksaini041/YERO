@@ -15,7 +15,13 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
 
   const platformResult = platformSchema.safeParse(rawPlatform);
   if (!platformResult.success) {
-    return NextResponse.json({ error: "Unsupported platform." }, { status: 400 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: { code: "INVALID_INPUT", message: "Unsupported platform." },
+      },
+      { status: 400 }
+    );
   }
   const platform = platformResult.data;
 
@@ -26,7 +32,13 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: { code: "AUTH_REQUIRED", message: "Unauthorized" },
+      },
+      { status: 401 }
+    );
   }
 
   const { data, error } = await supabase
@@ -37,27 +49,39 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
     .maybeSingle();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: { code: "UNKNOWN_ERROR", message: error.message },
+      },
+      { status: 500 }
+    );
   }
 
   if (!data) {
-    return NextResponse.json({ connector: null }, { status: 200 });
+    return NextResponse.json({ success: true, connector: null }, { status: 200 });
   }
 
-  return NextResponse.json({ connector: data });
+  return NextResponse.json({ success: true, connector: data });
 }
 
 /**
  * POST /api/connectors/[platform]
- * Connects a platform: fetches public data, normalizes it, upserts connector record.
+ * Connects a platform: validates/normalizes handle, fetches public data, and upserts record.
  * Body: { username: string }
  */
 export async function POST(req: NextRequest, { params }: RouteContext) {
   const { platform: rawPlatform } = await params;
 
   const body = await req.json().catch(() => null);
-  if (!body) {
-    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+  if (!body || typeof body.username !== "string") {
+    return NextResponse.json(
+      {
+        success: false,
+        error: { code: "INVALID_INPUT", message: "Invalid request body." },
+      },
+      { status: 400 }
+    );
   }
 
   const validation = connectConnectorSchema.safeParse({
@@ -67,7 +91,13 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
 
   if (!validation.success) {
     return NextResponse.json(
-      { error: validation.error.issues[0]?.message ?? "Invalid input." },
+      {
+        success: false,
+        error: {
+          code: "INVALID_INPUT",
+          message: validation.error.issues[0]?.message ?? "Invalid input.",
+        },
+      },
       { status: 400 }
     );
   }
@@ -81,7 +111,13 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: { code: "AUTH_REQUIRED", message: "Unauthorized" },
+      },
+      { status: 401 }
+    );
   }
 
   // Mark connector as syncing (upsert to prevent duplicate)
@@ -101,19 +137,29 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
   const result = await service.fetchProfile(username);
 
   if (!result.success) {
-    // Update connector with error state
+    const errorMsg = result.error.message;
     await supabase
       .from("user_connectors")
       .update({
         status: "error",
-        error_message: result.error,
+        error_message: errorMsg,
         updated_at: new Date().toISOString(),
       })
       .eq("user_id", user.id)
       .eq("platform", platform);
 
-    const status = result.notFound ? 404 : result.rateLimited ? 429 : 502;
-    return NextResponse.json({ error: result.error }, { status });
+    const status = result.notFound ? 404 : result.rateLimited ? 429 : result.error.statusCode ?? 502;
+    return NextResponse.json(
+      {
+        success: false,
+        platform,
+        error: {
+          code: result.error.code,
+          message: errorMsg,
+        },
+      },
+      { status }
+    );
   }
 
   // Save normalized profile data
@@ -138,10 +184,21 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     .single();
 
   if (upsertError) {
-    return NextResponse.json({ error: upsertError.message }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: { code: "UNKNOWN_ERROR", message: upsertError.message },
+      },
+      { status: 500 }
+    );
   }
 
-  return NextResponse.json({ connector: savedRow, profile: result.profile });
+  return NextResponse.json({
+    success: true,
+    platform,
+    connector: savedRow,
+    profile: result.profile,
+  });
 }
 
 /**
@@ -153,7 +210,13 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
 
   const platformResult = platformSchema.safeParse(rawPlatform);
   if (!platformResult.success) {
-    return NextResponse.json({ error: "Unsupported platform." }, { status: 400 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: { code: "INVALID_INPUT", message: "Unsupported platform." },
+      },
+      { status: 400 }
+    );
   }
   const platform = platformResult.data;
 
@@ -164,7 +227,13 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: { code: "AUTH_REQUIRED", message: "Unauthorized" },
+      },
+      { status: 401 }
+    );
   }
 
   const { error } = await supabase
@@ -174,8 +243,14 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
     .eq("platform", platform);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: { code: "UNKNOWN_ERROR", message: error.message },
+      },
+      { status: 500 }
+    );
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, platform });
 }

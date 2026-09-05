@@ -3,7 +3,7 @@
 // All platform-specific connector services map their native responses to this.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type Platform = "leetcode" | "codechef" | "codeforces";
+export type Platform = "leetcode" | "codechef" | "codeforces" | "github";
 
 export interface ConnectorStats {
   /** Current rating (Codeforces rating, CodeChef rating, LeetCode ranking) */
@@ -14,7 +14,7 @@ export interface ConnectorStats {
   rank?: string;
   /** Maximum rank label ever achieved */
   maxRank?: string;
-  /** Total problems solved across all difficulties */
+  /** Total problems solved across all difficulties (or public repos for GitHub) */
   problemsSolved?: number;
   /** Easy problems solved (LeetCode) */
   easySolved?: number;
@@ -28,6 +28,26 @@ export interface ConnectorStats {
   globalRank?: number;
   /** Country rank */
   countryRank?: number;
+  /** Public repositories count (GitHub) */
+  repos?: number;
+  /** Total followers count (GitHub) */
+  followers?: number;
+  /** Total following count (GitHub) */
+  following?: number;
+  /** Total stars received on owned repositories (GitHub) */
+  starsReceived?: number;
+  /** Total contributions (GitHub) */
+  totalContributions?: number;
+  /** Current contribution streak in days (GitHub) */
+  currentStreak?: number;
+  /** Longest contribution streak in days (GitHub) */
+  longestStreak?: number;
+  /** Total pull requests authored (GitHub) */
+  totalPullRequests?: number;
+  /** Total issues authored (GitHub) */
+  totalIssues?: number;
+  /** Total recorded commits (GitHub) */
+  totalCommits?: number;
 }
 
 export interface ConnectorActivity {
@@ -48,17 +68,44 @@ export interface ConnectorProfile {
   stars?: number;
   stats: ConnectorStats;
   activity?: ConnectorActivity;
+  /** ISO timestamp when data was fetched/normalized */
+  lastSyncedAt?: string;
   /** Platform-specific extra data — preserved for future use */
   metadata?: Record<string, unknown>;
+}
+
+export type ConnectorErrorCode =
+  | "INVALID_INPUT"
+  | "PROFILE_NOT_FOUND"
+  | "UPSTREAM_BAD_REQUEST"
+  | "UPSTREAM_UNAVAILABLE"
+  | "RATE_LIMITED"
+  | "TIMEOUT"
+  | "NETWORK_ERROR"
+  | "PARSER_ERROR"
+  | "AUTH_REQUIRED"
+  | "SERVICE_CONFIGURATION_ERROR"
+  | "UNKNOWN_ERROR";
+
+export interface ConnectorError {
+  code: ConnectorErrorCode;
+  message: string;
+  statusCode?: number;
 }
 
 /** Result from a connector service fetch */
 export type ConnectorFetchResult =
   | { success: true; profile: ConnectorProfile }
-  | { success: false; error: string; notFound?: boolean; rateLimited?: boolean };
+  | {
+      success: false;
+      error: ConnectorError;
+      notFound?: boolean;
+      rateLimited?: boolean;
+    };
 
 /** Interface every connector service must implement */
 export interface ConnectorService {
   platform: Platform;
   fetchProfile(username: string): Promise<ConnectorFetchResult>;
 }
+

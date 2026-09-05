@@ -18,6 +18,7 @@ const PLATFORM_LABELS: Record<Platform, string> = {
   leetcode: "LeetCode",
   codechef: "CodeChef",
   codeforces: "Codeforces",
+  github: "GitHub",
 };
 
 interface SettingsContainerProps {

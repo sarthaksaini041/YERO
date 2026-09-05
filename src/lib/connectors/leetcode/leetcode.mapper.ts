@@ -9,7 +9,10 @@ export function mapLeetCodeResponse(
   username: string,
   response: LeetCodeGraphQLResponse
 ): ConnectorProfile {
-  const { userPublicProfile, matchedUser, userContestRanking } = response.data;
+  const data = response.data;
+  const matchedUser = data?.matchedUser;
+  const userContestRanking = data?.userContestRanking;
+  const profile = matchedUser?.profile;
 
   // Solved counts by difficulty
   const acStats = matchedUser?.submitStats?.acSubmissionNum ?? [];
@@ -18,21 +21,22 @@ export function mapLeetCodeResponse(
   const mediumSolved = acStats.find((s) => s.difficulty === "Medium")?.count;
   const hardSolved = acStats.find((s) => s.difficulty === "Hard")?.count;
 
+  const actualUsername = matchedUser?.username ?? username;
+
   return {
     platform: "leetcode",
-    username,
-    profileUrl: `https://leetcode.com/${username}`,
-    displayName: userPublicProfile?.profile?.realName ?? undefined,
-    avatarUrl: userPublicProfile?.profile?.userAvatar ?? undefined,
-    country: userPublicProfile?.profile?.countryName ?? undefined,
+    username: actualUsername,
+    profileUrl: `https://leetcode.com/${actualUsername}`,
+    displayName: profile?.realName?.trim() || undefined,
+    avatarUrl: profile?.userAvatar || undefined,
+    country: profile?.countryName?.trim() || undefined,
 
     stats: {
       rating: userContestRanking?.rating
         ? Math.round(userContestRanking.rating)
         : undefined,
-      // LeetCode uses globalRanking from profile for overall site rank
       rank: undefined, // LeetCode doesn't have a named rank tier
-      globalRank: userPublicProfile?.profile?.ranking ?? undefined,
+      globalRank: profile?.ranking ?? undefined,
       problemsSolved: totalSolved,
       easySolved,
       mediumSolved,
@@ -40,14 +44,17 @@ export function mapLeetCodeResponse(
       contestsParticipated: userContestRanking?.attendedContestsCount ?? undefined,
     },
 
+    lastSyncedAt: new Date().toISOString(),
+
     metadata: {
-      reputation: userPublicProfile?.profile?.reputation ?? undefined,
+      aboutMe: profile?.aboutMe || undefined,
+      reputation: profile?.reputation ?? undefined,
       contestRating: userContestRanking?.rating ?? undefined,
       contestGlobalRanking: userContestRanking?.globalRanking ?? undefined,
       contestTopPercentage: userContestRanking?.topPercentage ?? undefined,
       badges: matchedUser?.badges?.map((b) => b.displayName) ?? [],
       activeBadge: matchedUser?.activeBadge?.displayName ?? undefined,
-      solutionCount: userPublicProfile?.profile?.solutionCount ?? undefined,
+      solutionCount: profile?.solutionCount ?? undefined,
     },
   };
 }

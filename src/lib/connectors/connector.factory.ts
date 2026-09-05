@@ -2,12 +2,14 @@ import type { Platform, ConnectorService } from "./types";
 import { leetcodeService } from "./leetcode/leetcode.service";
 import { codechefService } from "./codechef/codechef.service";
 import { codeforcesService } from "./codeforces/codeforces.service";
+import { githubService } from "./github/github.service";
 
 /** Registry of all available connector services, keyed by platform slug. */
 const CONNECTOR_REGISTRY: Record<Platform, ConnectorService> = {
   leetcode: leetcodeService,
   codechef: codechefService,
   codeforces: codeforcesService,
+  github: githubService,
 };
 
 /**
@@ -23,6 +25,11 @@ export function getConnectorService(platform: Platform): ConnectorService {
 }
 
 /** All supported platform slugs */
-export const SUPPORTED_PLATFORMS: Platform[] = ["leetcode", "codechef", "codeforces"];
+export const SUPPORTED_PLATFORMS: Platform[] = [
+  "leetcode",
+  "codechef",
+  "codeforces",
+  "github",
+];
 
 export { CONNECTOR_REGISTRY };

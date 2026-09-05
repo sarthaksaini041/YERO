@@ -6,6 +6,24 @@ import type {
 import type { ConnectorProfile } from "../types";
 
 /**
+ * Ensures Codeforces avatar URLs are valid absolute URLs.
+ */
+function formatAvatarUrl(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  let cleaned = url;
+  if (cleaned.includes("userpic.codeforces.org/")) {
+    cleaned = cleaned.replace("userpic.codeforces.org/", "codeforces.com/userpic/");
+  }
+  if (cleaned.startsWith("//")) {
+    return `https:${cleaned}`;
+  }
+  if (cleaned.startsWith("http://") || cleaned.startsWith("https://")) {
+    return cleaned;
+  }
+  return `https://codeforces.com${cleaned.startsWith("/") ? "" : "/"}${cleaned}`;
+}
+
+/**
  * Counts unique accepted problems from submission list.
  * A problem is identified by its contestId + index combination.
  */
@@ -40,6 +58,8 @@ export function mapCodeforcesResponse(
     (s) => s.creationTimeSeconds >= thirtyDaysAgo
   ).length;
 
+  const rawAvatar = user.titlePhoto || user.avatar;
+
   return {
     platform: "codeforces",
     username: user.handle,
@@ -47,13 +67,9 @@ export function mapCodeforcesResponse(
     displayName:
       user.firstName && user.lastName
         ? `${user.firstName} ${user.lastName}`.trim()
-        : undefined,
-    avatarUrl: user.titlePhoto
-      ? `https://codeforces.com${user.titlePhoto}`
-      : user.avatar
-      ? `https://codeforces.com${user.avatar}`
-      : undefined,
-    country: user.country ?? undefined,
+        : user.firstName?.trim() || undefined,
+    avatarUrl: formatAvatarUrl(rawAvatar),
+    country: user.country?.trim() || undefined,
 
     stats: {
       rating: user.rating,
@@ -68,10 +84,12 @@ export function mapCodeforcesResponse(
       recentSubmissions: recentSubmissions > 0 ? recentSubmissions : undefined,
     },
 
+    lastSyncedAt: new Date().toISOString(),
+
     metadata: {
       contribution: user.contribution,
-      organization: user.organization ?? undefined,
-      city: user.city ?? undefined,
+      organization: user.organization || undefined,
+      city: user.city || undefined,
       friendOfCount: user.friendOfCount,
       registrationYear: user.registrationTimeSeconds
         ? new Date(user.registrationTimeSeconds * 1000).getFullYear()

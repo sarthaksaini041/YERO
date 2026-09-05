@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { IconButton } from "@/components/ui/icon-button";
-import { cn } from "@/lib/utils";
 import {
   Alert01Icon,
   Loading03Icon,
@@ -24,6 +23,13 @@ interface ConnectModalProps {
   onClose: () => void;
   onSuccess: (connector: ConnectorRecord) => void;
 }
+
+const PLACEHOLDERS: Record<Platform, string> = {
+  leetcode: "username or https://leetcode.com/u/username",
+  codeforces: "handle or https://codeforces.com/profile/handle",
+  codechef: "username or https://codechef.com/users/username",
+  github: "username or https://github.com/username",
+};
 
 export function ConnectModal({
   platform,
@@ -58,13 +64,21 @@ export function ConnectModal({
     setIsSubmitting(true);
     setError(null);
 
-    const result = await connectPlatform(platform, trimmed);
-    setIsSubmitting(false);
-
-    if (result.success && result.connector) {
-      onSuccess(result.connector);
-    } else {
-      setError(result.error ?? "An unexpected error occurred. Please try again.");
+    try {
+      const result = await connectPlatform(platform, trimmed);
+      if (result.success && result.connector) {
+        onSuccess(result.connector);
+      } else {
+        const raw = result.error ?? "An unexpected error occurred. Please try again.";
+        const friendly = raw.includes("HTTP 400")
+          ? "Profile not found or invalid format. Please check your username."
+          : raw;
+        setError(friendly);
+      }
+    } catch {
+      setError("Failed to connect. Please check your internet connection and try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -100,7 +114,7 @@ export function ConnectModal({
                 Connect {platformLabel}
               </h2>
               <p className="text-[12px] text-[var(--color-text-muted)] mt-0.5">
-                Your public profile will be linked
+                Enter your handle or paste your profile link
               </p>
             </div>
           </div>
@@ -129,9 +143,9 @@ export function ConnectModal({
                 exit={{ opacity: 0, height: 0 }}
                 className="overflow-hidden"
               >
-                <div className="flex items-start gap-2.5 px-3.5 py-2.5 rounded-[var(--radius-md)] bg-[var(--color-danger-light)] border border-[var(--color-danger-border)] text-[12.5px] text-[var(--color-danger)]">
-                  <Icon icon={Alert01Icon} size="sm" className="shrink-0 mt-px" />
-                  <span className="font-medium">{error}</span>
+                <div className="flex items-start gap-2.5 px-3.5 py-2.5 rounded-[var(--radius-md)] bg-amber-50/80 border border-amber-200 text-[12.5px] text-amber-900">
+                  <Icon icon={Alert01Icon} size="sm" className="shrink-0 mt-0.5 text-amber-600" />
+                  <span className="font-medium leading-snug">{error}</span>
                 </div>
               </motion.div>
             )}
@@ -140,9 +154,9 @@ export function ConnectModal({
           <div className="space-y-1.5">
             <label
               htmlFor="connector-username"
-              className="block text-[12px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wide"
+              className="block text-[12px] font-semibold text-[var(--color-text-muted)]"
             >
-              {platformLabel} Username
+              {platformLabel} Username or URL
             </label>
             <Input
               id="connector-username"
@@ -159,7 +173,7 @@ export function ConnectModal({
                 if (error) setError(null);
               }}
               disabled={isSubmitting}
-              placeholder={`Enter your ${platformLabel} username`}
+              placeholder={PLACEHOLDERS[platform]}
               error={!!error}
             />
           </div>
