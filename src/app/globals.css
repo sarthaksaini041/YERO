@@ -3,100 +3,141 @@
 /* ─── Design Tokens ─────────────────────────────────────────────── */
 @layer base {
   :root {
-    /* Colors */
-    --color-bg:              #F4F5F7;
+    /* ── Colors ── */
+    --color-bg:              #F6F7F9;
     --color-surface:         #FFFFFF;
-    --color-surface-raised:  #FFFFFF;
-    --color-surface-muted:   #F8F9FB;
-    --color-border:          #E5E7EB;
-    --color-border-strong:   #D1D5DB;
-    --color-text-primary:    #111827;
-    --color-text-secondary:  #374151;
-    --color-text-muted:      #6B7280;
-    --color-text-faint:      #9CA3AF;
+    --color-surface-alt:     #FAFAFA;
+    --color-surface-muted:   #F1F3F7;
+
+    --color-border:          #E4E7EC;
+    --color-border-strong:   #CDD2DA;
+
+    --color-text-primary:    #0F172A;
+    --color-text-secondary:  #334155;
+    --color-text-muted:      #64748B;
+    --color-text-faint:      #94A3B8;
+
+    /* Accent — Indigo */
     --color-accent:          #4F46E5;
     --color-accent-hover:    #4338CA;
     --color-accent-light:    #EEF2FF;
     --color-accent-border:   #C7D2FE;
-    --color-success:         #059669;
+    --color-accent-fg:       #FFFFFF;
+
+    /* Semantic */
+    --color-success:         #10B981;
     --color-success-light:   #ECFDF5;
-    --color-danger:          #DC2626;
-    --color-danger-light:    #FEF2F2;
-    --color-warning:         #D97706;
+    --color-success-border:  #A7F3D0;
+    --color-warning:         #F59E0B;
     --color-warning-light:   #FFFBEB;
+    --color-warning-border:  #FDE68A;
+    --color-danger:          #EF4444;
+    --color-danger-light:    #FEF2F2;
+    --color-danger-border:   #FECACA;
 
-    /* Shadows */
-    --shadow-xs:  0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-sm:  0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.05);
-    --shadow-md:  0 4px 8px -2px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04);
-    --shadow-lg:  0 10px 24px -4px rgb(0 0 0 / 0.08), 0 4px 8px -2px rgb(0 0 0 / 0.04);
+    /* ── Shadows ── */
+    --shadow-xs:  0 1px 2px 0 rgb(15 23 42 / 0.04);
+    --shadow-sm:  0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.04);
+    --shadow-md:  0 4px 12px -2px rgb(15 23 42 / 0.08), 0 2px 6px -2px rgb(15 23 42 / 0.04);
+    --shadow-lg:  0 16px 40px -6px rgb(15 23 42 / 0.12), 0 6px 16px -4px rgb(15 23 42 / 0.06);
+    --shadow-xl:  0 24px 60px -8px rgb(15 23 42 / 0.16), 0 8px 24px -4px rgb(15 23 42 / 0.08);
 
-    /* Border Radius */
-    --radius-sm:   6px;
-    --radius-md:   10px;
-    --radius-lg:   14px;
-    --radius-xl:   18px;
+    /* ── Border Radius ── */
+    --radius-xs:   4px;
+    --radius-sm:   8px;
+    --radius-md:   12px;
+    --radius-lg:   16px;
+    --radius-xl:   20px;
+    --radius-2xl:  24px;
     --radius-full: 9999px;
 
-    /* Animation */
-    --duration-fast:   150ms;
-    --duration-base:   200ms;
-    --duration-slow:   300ms;
+    /* ── Sidebar ── */
+    --sidebar-width: 240px;
+
+    /* ── Animation ── */
+    --duration-fast:   120ms;
+    --duration-base:   180ms;
+    --duration-slow:   280ms;
     --ease-out:        cubic-bezier(0.16, 1, 0.3, 1);
     --ease-in-out:     cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  /* Typography */
+  /* ── Base Typography ── */
   html {
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   body {
     background-color: var(--color-bg);
     color: var(--color-text-secondary);
-    font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
     line-height: 1.5;
+    min-height: 100dvh;
   }
 
-  /* Clean focus ring — accessible, indigo accent */
+  /* ── Focus Ring ── */
   :focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
     border-radius: var(--radius-sm);
   }
 
-  /* Suppress focus for mouse users, keep for keyboard */
   button:focus:not(:focus-visible),
   a:focus:not(:focus-visible),
-  input:focus:not(:focus-visible) {
+  input:focus:not(:focus-visible),
+  textarea:focus:not(:focus-visible) {
     outline: none;
   }
 
-  input:focus {
+  input:focus,
+  textarea:focus {
     outline: none;
   }
 
-  /* Selection */
+  /* ── Text Selection ── */
   ::selection {
     background: var(--color-accent-light);
     color: var(--color-accent);
   }
 
-  /* Smooth scroll */
-  html[data-scroll-behavior="smooth"] {
-    scroll-behavior: smooth;
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border-strong);
+    border-radius: var(--radius-full);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-faint);
   }
 }
 
 /* ─── Typography Scale ───────────────────────────────────────────── */
 @layer utilities {
+
   .text-display {
     font-family: var(--font-plus-jakarta), var(--font-inter), sans-serif;
-    font-size: 1.625rem;   /* 26px */
+    font-size: 1.75rem;    /* 28px */
     font-weight: 700;
-    line-height: 1.2;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+
+  .text-heading-xl {
+    font-family: var(--font-plus-jakarta), var(--font-inter), sans-serif;
+    font-size: 1.375rem;   /* 22px */
+    font-weight: 700;
+    line-height: 1.25;
     letter-spacing: -0.025em;
     color: var(--color-text-primary);
   }
@@ -119,15 +160,24 @@
     color: var(--color-text-primary);
   }
 
+  .text-heading-sm {
+    font-family: var(--font-plus-jakarta), var(--font-inter), sans-serif;
+    font-size: 0.9375rem;  /* 15px */
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    color: var(--color-text-primary);
+  }
+
   .text-body-lg {
     font-size: 0.9375rem;  /* 15px */
-    line-height: 1.5;
+    line-height: 1.6;
     color: var(--color-text-secondary);
   }
 
   .text-body {
     font-size: 0.875rem;   /* 14px */
-    line-height: 1.5;
+    line-height: 1.55;
     color: var(--color-text-secondary);
   }
 
@@ -147,8 +197,9 @@
 
   .text-micro {
     font-size: 0.6875rem;  /* 11px */
-    font-weight: 500;
-    letter-spacing: 0.02em;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     color: var(--color-text-faint);
   }
 }
@@ -164,7 +215,38 @@
   }
 }
 
-/* ─── Motion Preferences ────────────────────────────────────────── */
+/* ─── Page Content Padding ───────────────────────────────────────── */
+@layer utilities {
+  .page-content {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .page-content {
+      padding-left: 1.75rem;
+      padding-right: 1.75rem;
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .page-content {
+      padding-left: 2.5rem;
+      padding-right: 2.5rem;
+      padding-top: 2.5rem;
+      padding-bottom: 2.5rem;
+    }
+  }
+}
+
+/* ─── Motion Preferences ─────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

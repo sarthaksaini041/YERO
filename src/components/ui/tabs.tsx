@@ -1,17 +1,7 @@
 "use client";
 
 /**
- * Tabs — shared segmented tab control with animated sliding indicator.
- *
- * Usage:
- *   <Tabs
- *     tabs={[
- *       { key: "all", label: "All", count: 5 },
- *       { key: "active", label: "Active", count: 3 },
- *     ]}
- *     activeKey="all"
- *     onChange={(key) => setFilter(key)}
- *   />
+ * Tabs — segmented tab control with animated sliding pill indicator.
  */
 import * as React from "react";
 import { motion } from "framer-motion";
@@ -46,9 +36,8 @@ export function Tabs<T extends string = string>({
     <div
       role="tablist"
       className={cn(
-        "items-center p-0.5 bg-gray-100 border border-[var(--color-border)] relative",
-        size === "sm" ? "rounded-lg" : "rounded-xl",
-        fullWidth ? "flex w-full" : "inline-flex",
+        "relative flex items-center p-1 rounded-[var(--radius-md)] bg-[var(--color-surface-muted)] border border-[var(--color-border)]",
+        fullWidth ? "w-full" : "inline-flex",
         className
       )}
     >
@@ -65,13 +54,13 @@ export function Tabs<T extends string = string>({
               onChange(tab.key);
             }}
             className={cn(
-              "relative flex items-center justify-center gap-1.5 rounded-lg font-medium cursor-pointer select-none transition-colors duration-150",
+              "relative flex items-center justify-center gap-1.5 rounded-[calc(var(--radius-md)-2px)] font-medium cursor-pointer select-none transition-colors duration-[var(--duration-base)]",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-1",
               "[-webkit-tap-highlight-color:transparent]",
               fullWidth ? "flex-1" : "shrink-0",
               size === "sm"
-                ? "px-2.5 py-1 text-[12px]"
-                : "px-3 py-1 text-[12.5px] sm:text-[13px]",
+                ? "px-3 py-1.5 text-[12px]"
+                : "px-3.5 py-1.5 text-[12.5px] sm:text-[13px]",
               isActive
                 ? "text-[var(--color-text-primary)]"
                 : "text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
@@ -81,8 +70,8 @@ export function Tabs<T extends string = string>({
             {isActive && (
               <motion.div
                 layoutId={layoutId}
-                className="absolute inset-0 bg-white rounded-lg shadow-[var(--shadow-xs)]"
-                transition={{ type: "spring", stiffness: 500, damping: 36 }}
+                className="absolute inset-0 bg-white rounded-[calc(var(--radius-md)-2px)] shadow-[var(--shadow-sm)] border border-[var(--color-border)]"
+                transition={{ type: "spring", stiffness: 500, damping: 38 }}
               />
             )}
 
@@ -91,10 +80,10 @@ export function Tabs<T extends string = string>({
             {tab.count !== undefined && (
               <span
                 className={cn(
-                  "relative z-10 px-1.5 py-0.5 rounded-md text-[11px] font-medium transition-colors duration-150",
+                  "relative z-10 px-1.5 py-0.5 rounded-md text-[10.5px] font-semibold transition-colors duration-150 min-w-[20px] text-center",
                   isActive
-                    ? "bg-gray-100 text-[var(--color-text-secondary)]"
-                    : "bg-gray-200/70 text-[var(--color-text-faint)]"
+                    ? "bg-[var(--color-surface-muted)] text-[var(--color-text-secondary)]"
+                    : "bg-[var(--color-border)] text-[var(--color-text-faint)]"
                 )}
               >
                 {tab.count}
