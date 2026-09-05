@@ -48,9 +48,23 @@ export const notificationLogs = pgTable("notification_logs", {
   title: text("title").notNull(),
   body: text("body").notNull(),
   status: text("status").notNull().default("SENT"),
+  read: boolean("read").notNull().default(false),
   sentAt: timestamp("sent_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export type NotificationLog = InferSelectModel<typeof notificationLogs>;
 export type NewNotificationLog = InferInsertModel<typeof notificationLogs>;
 
+export const notes = pgTable("notes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull(),
+  title: text("title").notNull(),
+  content: text("content").notNull().default(""),
+  color: text("color").default("default"),
+  pinned: boolean("pinned").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type Note = InferSelectModel<typeof notes>;
+export type NewNote = InferInsertModel<typeof notes>;
