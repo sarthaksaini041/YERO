@@ -1,0 +1,21 @@
+name: YERO Task Reminders
+
+on:
+  schedule:
+    # 03:30, 06:30, 09:30, 12:30, 15:30 UTC = 09:00, 12:00, 15:00, 18:00, 21:00 IST
+    - cron: '30 3,6,9,12,15 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-reminder-engine:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Reminders
+        run: |
+          if [ -n "${{ secrets.APP_URL }}" ] && [ -n "${{ secrets.CRON_SECRET }}" ]; then
+            echo "Invoking reminder engine at ${{ secrets.APP_URL }}..."
+            curl -s -X POST "${{ secrets.APP_URL }}/api/cron/reminders" \
+              -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+          else
+            echo "APP_URL or CRON_SECRET not set in GitHub Secrets. Skipping."
+          fi
