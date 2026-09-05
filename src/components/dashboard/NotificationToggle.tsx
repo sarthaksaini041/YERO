@@ -45,8 +45,39 @@ export function NotificationToggle() {
   }, []);
 
   React.useEffect(() => {
-    checkStatus();
-  }, [checkStatus]);
+    let mounted = true;
+    async function init() {
+      const supported = isPushSupported();
+      const currentPerm =
+        supported && typeof window !== "undefined" && "Notification" in window
+          ? Notification.permission
+          : "default";
+
+      try {
+        const status = await getNotificationStatus();
+        if (mounted) {
+          setIsSupported(supported);
+          setPermission(currentPerm);
+          setIsSubscribed(status.hasActiveSubscription && status.notificationsEnabled);
+        }
+      } catch {
+        if (mounted) {
+          setIsSupported(supported);
+          setPermission(currentPerm);
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    init();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   if (!isSupported) return null;
 

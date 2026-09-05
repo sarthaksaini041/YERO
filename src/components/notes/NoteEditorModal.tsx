@@ -94,7 +94,7 @@ function NoteForm({
       <div className="space-y-1.5">
         <label
           htmlFor="note-title"
-          className="block text-[12px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wide"
+          className="block text-[12px] font-semibold text-[var(--color-text-muted)]"
         >
           Title
         </label>
@@ -115,7 +115,7 @@ function NoteForm({
       <div className="space-y-1.5">
         <label
           htmlFor="note-content"
-          className="block text-[12px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wide"
+          className="block text-[12px] font-semibold text-[var(--color-text-muted)]"
         >
           Content
         </label>

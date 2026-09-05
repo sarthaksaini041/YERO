@@ -332,7 +332,7 @@ export function TaskList({ initialTasks, todayDate, totalCompletedAllTime }: Tas
           <div className="rounded-[var(--radius-xl)] bg-white border border-[var(--color-border)] p-6 shadow-[var(--shadow-xs)] space-y-5">
             {/* Header with Icon */}
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-[var(--color-text-muted)] tracking-wider uppercase">
+              <span className="text-[11px] font-semibold text-[var(--color-text-muted)]">
                 Productivity
               </span>
               <div className="w-8 h-8 rounded-lg bg-[var(--color-accent-light)] text-[var(--color-accent)] flex items-center justify-center">

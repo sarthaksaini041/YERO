@@ -4,7 +4,6 @@ import * as React from "react";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import { cn } from "@/lib/utils";
 import {
   isPushSupported,
   subscribeUserToPush,
@@ -35,7 +34,7 @@ export function NotificationPreferencesModal({
   onClose,
   onStatusChange,
 }: NotificationPreferencesModalProps) {
-  const [isSupported, setIsSupported] = React.useState(true);
+  const [, setIsSupported] = React.useState(true);
   const [permission, setPermission] = React.useState<NotificationPermission>("default");
   const [isSubscribed, setIsSubscribed] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -159,7 +158,7 @@ export function NotificationPreferencesModal({
         {/* Current Status Card */}
         <div className="p-4 rounded-[var(--radius-lg)] bg-[var(--color-surface-muted)] border border-[var(--color-border)] space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-[12px] font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">
+            <span className="text-[12px] font-semibold text-[var(--color-text-muted)]">
               Current Status
             </span>
 

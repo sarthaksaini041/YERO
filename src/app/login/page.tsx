@@ -214,7 +214,7 @@ export default function LoginPage() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="identifier"
-                  className="block text-[12px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wide"
+                  className="block text-[12px] font-semibold text-[var(--color-text-muted)]"
                 >
                   Email
                 </label>
@@ -235,7 +235,7 @@ export default function LoginPage() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="password"
-                  className="block text-[12px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wide"
+                  className="block text-[12px] font-semibold text-[var(--color-text-muted)]"
                 >
                   Password
                 </label>
