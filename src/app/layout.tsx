@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { PwaProvider } from "@/components/pwa/PwaProvider";
 
@@ -7,6 +7,13 @@ const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
+});
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-plus-jakarta",
+  display: "swap",
+  weight: ["500", "600", "700", "800"],
 });
 
 export const viewport: Viewport = {
@@ -49,17 +56,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} h-full`}>
-      <body className="font-sans antialiased min-h-full flex flex-col text-slate-800 bg-[#f8f9fb] selection:bg-slate-200 selection:text-slate-900">
-        {/* Subtle ambient lighting meshes for liquid glass refraction */}
-        <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10" aria-hidden="true">
-          <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-slate-200/40 blur-3xl" />
-          <div className="absolute top-1/4 right-0 w-80 h-80 rounded-full bg-amber-100/30 blur-3xl" />
-          <div className="absolute bottom-10 left-1/3 w-96 h-96 rounded-full bg-slate-200/30 blur-3xl" />
-        </div>
+    <html lang="en" className={`${inter.variable} ${plusJakartaSans.variable} h-full`}>
+      <body className="antialiased min-h-full flex flex-col" style={{ fontFamily: "var(--font-inter), sans-serif" }}>
         <PwaProvider>{children}</PwaProvider>
       </body>
     </html>
   );
 }
-
