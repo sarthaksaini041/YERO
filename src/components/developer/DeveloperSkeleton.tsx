@@ -32,15 +32,11 @@ export function DeveloperSkeleton() {
         </div>
       </div>
 
-      {/* 2. 7 KPI Metric Cards Bento Skeleton */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-8 gap-2.5 sm:gap-3">
+      {/* 2. 7 KPI Metric Cards Skeleton */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-2.5 sm:gap-3">
         {Array.from({ length: 7 }).map((_, i) => {
           const spanClass =
-            i === 0
-              ? "col-span-2 sm:col-span-2 lg:col-span-2 2xl:col-span-2"
-              : i === 6
-              ? "col-span-1 sm:col-span-2 lg:col-span-1 2xl:col-span-2"
-              : "col-span-1";
+            i === 0 ? "col-span-2 sm:col-span-2 xl:col-span-1" : "col-span-1";
 
           return (
             <div

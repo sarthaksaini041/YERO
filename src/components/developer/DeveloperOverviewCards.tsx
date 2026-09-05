@@ -91,16 +91,16 @@ export function DeveloperOverviewCards({
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-8 gap-2.5 sm:gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-2.5 sm:gap-3">
       {metricCards.map((card) => {
         const isContributions = card.id === "contributions";
-        const isFollowers = card.id === "followers";
 
-        // Bento grid responsive column spans
+        // Span logic:
+        // Mobile (2 cols): Contributions spans 2 (entire row), remaining 6 cards take 1 col each (3 rows of 2). Perfect 8 slots!
+        // Tablet/Laptop (4 cols): Contributions spans 2, Commits + Repos = 4 (row 1). Stars + PRs + Issues + Followers = 4 (row 2). Perfect 8 slots!
+        // Desktop xl+ (7 cols): Every card takes 1 col (xl:col-span-1). Single sleek row with 0 orphaned cards!
         const spanClass = isContributions
-          ? "col-span-2 sm:col-span-2 lg:col-span-2 2xl:col-span-2"
-          : isFollowers
-          ? "col-span-1 sm:col-span-2 lg:col-span-1 2xl:col-span-2"
+          ? "col-span-2 sm:col-span-2 xl:col-span-1"
           : "col-span-1";
 
         return (
@@ -112,82 +112,26 @@ export function DeveloperOverviewCards({
                 : ""
             }`}
           >
-            {isContributions ? (
-              <div className="flex items-center justify-between gap-3 h-full">
-                <div className="flex flex-col justify-between h-full min-w-0">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[11px] font-semibold text-[var(--color-text-muted)] truncate">
-                      {card.label}
-                    </span>
-                    <span className="px-1.5 py-0.2 rounded text-[9.5px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      Headline
-                    </span>
-                  </div>
-                  <div className="mt-1.5">
-                    <div className="text-xl sm:text-2xl font-bold font-mono tracking-tight text-[var(--color-text-primary)] leading-none">
-                      {card.value}
-                    </div>
-                    {card.subtitle && (
-                      <p className="text-[10px] text-[var(--color-text-faint)] mt-1 truncate">
-                        {card.subtitle}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div
-                  className={`w-8 h-8 rounded-lg ${card.bg} ${card.color} flex items-center justify-center shrink-0 shadow-sm`}
-                >
-                  <Icon icon={card.icon} size={16} />
-                </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-semibold text-[var(--color-text-muted)] truncate">
+                {card.label}
+              </span>
+              <div
+                className={`w-6 h-6 rounded-md ${card.bg} ${card.color} flex items-center justify-center shrink-0`}
+              >
+                <Icon icon={card.icon} size={13} />
               </div>
-            ) : isFollowers ? (
-              <div className="flex flex-col justify-between h-full">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-semibold text-[var(--color-text-muted)] truncate">
-                    {card.label}
-                  </span>
-                  <div
-                    className={`w-6 h-6 rounded-md ${card.bg} ${card.color} flex items-center justify-center shrink-0`}
-                  >
-                    <Icon icon={card.icon} size={13} />
-                  </div>
-                </div>
-                <div className="mt-1.5">
-                  <div className="text-lg sm:text-xl font-bold font-mono tracking-tight text-[var(--color-text-primary)] leading-none flex items-baseline gap-2">
-                    <span>{card.value}</span>
-                    <span className="text-[10.5px] font-normal text-[var(--color-text-faint)] font-sans hidden 2xl:inline">
-                      ({overview.following.toLocaleString()} following)
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-[var(--color-text-faint)] mt-1 truncate 2xl:hidden">
-                    {card.subtitle}
-                  </p>
-                </div>
+            </div>
+            <div className="mt-1.5">
+              <div className="text-lg sm:text-xl font-bold font-mono tracking-tight text-[var(--color-text-primary)] leading-none">
+                {card.value}
               </div>
-            ) : (
-              <>
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-semibold text-[var(--color-text-muted)] truncate">
-                    {card.label}
-                  </span>
-                  <div
-                    className={`w-6 h-6 rounded-md ${card.bg} ${card.color} flex items-center justify-center shrink-0`}
-                  >
-                    <Icon icon={card.icon} size={13} />
-                  </div>
-                </div>
-                <div className="mt-1.5">
-                  <div className="text-lg sm:text-xl font-bold font-mono tracking-tight text-[var(--color-text-primary)] leading-none">
-                    {card.value}
-                  </div>
-                  {card.subtitle && (
-                    <p className="text-[10px] text-[var(--color-text-faint)] mt-1 truncate">
-                      {card.subtitle}
-                    </p>
-                  )}
-                </div>
-              </>
-            )}
+              {card.subtitle && (
+                <p className="text-[10px] text-[var(--color-text-faint)] mt-1 truncate font-sans">
+                  {card.subtitle}
+                </p>
+              )}
+            </div>
           </div>
         );
       })}
