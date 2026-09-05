@@ -5,8 +5,17 @@ import { useActionState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { loginAction, type AuthFormState } from "@/actions/auth";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeOff, AlertCircle, ArrowRight, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { IconButton } from "@/components/ui/icon-button";
 import Image from "next/image";
+import {
+  ViewIcon,
+  ViewOffIcon,
+  Alert01Icon,
+  ArrowRight01Icon,
+  Loading03Icon,
+} from "@hugeicons/core-free-icons";
 
 export default function LoginPage() {
   const [state, formAction, isPending] = useActionState<AuthFormState, FormData>(
@@ -24,86 +33,81 @@ export default function LoginPage() {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: shouldReduceMotion ? 0 : 0.07,
+        staggerChildren: shouldReduceMotion ? 0 : 0.06,
         delayChildren: shouldReduceMotion ? 0 : 0.04,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 8 },
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 10 },
     show: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: shouldReduceMotion ? 0.1 : 0.32,
+        duration: shouldReduceMotion ? 0.1 : 0.3,
         ease: [0.16, 1, 0.3, 1] as const,
       },
     },
   };
 
   return (
-    <div className="min-h-screen flex flex-col select-none">
-      {/* Transparent Header with YERO Capsule */}
-      <header className="w-full bg-transparent sticky top-0 z-30 pt-3 pb-1">
-        <div className="max-w-xl mx-auto px-4 sm:px-6 flex items-center justify-between">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-full liquid-glass-card border border-white/90 shadow-2xs">
-            <Image
-              src="/logo-sm.webp"
-              alt="YERO Logo"
-              width={20}
-              height={20}
-              className="w-5 h-5 rounded-md object-cover"
-              priority
-            />
-            <span className="font-semibold text-slate-900 tracking-tight text-xs">
-              YERO
-            </span>
-          </div>
-        </div>
-      </header>
+    <div
+      className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 py-6 select-none"
+      style={{ background: "var(--color-bg)" }}
+    >
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="w-full max-w-[380px] mx-auto"
+      >
+        {/* Brand & Headline */}
+        <motion.div variants={itemVariants} className="mb-4 text-center flex flex-col items-center">
+          <Image
+            src="/logo-sm.webp"
+            alt="YERO"
+            width={36}
+            height={36}
+            className="w-9 h-9 rounded-xl object-cover shadow-[var(--shadow-xs)] mb-2"
+            priority
+          />
+          <h1 className="text-heading-lg">Welcome back</h1>
+        </motion.div>
 
-      {/* Centered Login Card */}
-      <main className="flex-1 flex items-center justify-center p-4 sm:p-6 -mt-8">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
-          className="w-full max-w-[380px] mx-auto"
-        >
-          {/* Floating Liquid Glass Login Card */}
+          {/* Card */}
           <motion.div
             variants={itemVariants}
-            className="liquid-glass-card rounded-[26px] p-6 sm:p-7 border border-white/90 shadow-[0_12px_36px_-6px_rgba(15,23,42,0.05),0_2px_8px_-2px_rgba(15,23,42,0.02)] backdrop-blur-2xl"
+            className="bg-white rounded-xl border border-[var(--color-border)] shadow-[var(--shadow-md)] p-5 sm:p-6"
           >
-            {/* Animated Error Banner (Zero Layout Jitter) */}
+            {/* Error Banner */}
             <AnimatePresence mode="wait">
               {state?.error && (
                 <motion.div
                   key="error-banner"
-                  initial={{ opacity: 0, y: -6, height: 0 }}
-                  animate={{ opacity: 1, y: 0, height: "auto" }}
-                  exit={{ opacity: 0, y: -6, height: 0 }}
+                  initial={{ opacity: 0, height: 0, y: -6 }}
+                  animate={{ opacity: 1, height: "auto", y: 0 }}
+                  exit={{ opacity: 0, height: 0, y: -6 }}
                   transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
                   className="overflow-hidden mb-4"
                 >
                   <div
                     role="alert"
-                    className="flex items-start gap-2.5 p-3 rounded-xl bg-rose-50/90 border border-rose-200/80 text-xs text-rose-700 leading-relaxed shadow-2xs"
+                    className="flex items-start gap-2.5 p-3 rounded-xl bg-[var(--color-danger-light)] border border-red-200 text-[12.5px] text-[var(--color-danger)] leading-relaxed"
                   >
-                    <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-rose-500" />
+                    <Icon icon={Alert01Icon} size="sm" className="shrink-0 mt-0.5" />
                     <span>{state.error}</span>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <form action={formAction} className="space-y-4">
+            <form action={formAction} className="space-y-3.5">
               {/* Email */}
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <label
                   htmlFor="identifier"
-                  className="block text-xs font-medium text-slate-600"
+                  className="block text-[12.5px] font-medium text-[var(--color-text-secondary)]"
                 >
                   Email
                 </label>
@@ -117,15 +121,14 @@ export default function LoginPage() {
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   disabled={isPending}
-                  className="h-11 rounded-xl text-sm"
                 />
               </div>
 
               {/* Password */}
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <label
                   htmlFor="password"
-                  className="block text-xs font-medium text-slate-600"
+                  className="block text-[12.5px] font-medium text-[var(--color-text-secondary)]"
                 >
                   Password
                 </label>
@@ -140,62 +143,67 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isPending}
-                    className="h-11 rounded-xl pr-10 text-sm tracking-[0.08em]"
+                    className="pr-12 tracking-[0.06em]"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100/60 active:scale-95 flex items-center justify-center transition-all cursor-pointer"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    <AnimatePresence mode="wait" initial={false}>
-                      {showPassword ? (
-                        <motion.span
-                          key="eye-off"
-                          initial={{ opacity: 0, scale: 0.85 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.85 }}
-                          transition={{ duration: 0.12 }}
-                          className="flex items-center justify-center"
-                        >
-                          <EyeOff className="w-3.5 h-3.5" />
-                        </motion.span>
-                      ) : (
-                        <motion.span
-                          key="eye"
-                          initial={{ opacity: 0, scale: 0.85 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.85 }}
-                          transition={{ duration: 0.12 }}
-                          className="flex items-center justify-center"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </button>
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                    <IconButton
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      variant="ghost"
+                      size="sm"
+                      rounded="md"
+                    >
+                      <AnimatePresence mode="wait" initial={false}>
+                        {showPassword ? (
+                          <motion.span
+                            key="eye-off"
+                            initial={{ opacity: 0, scale: 0.85 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.85 }}
+                            transition={{ duration: 0.12 }}
+                            className="flex items-center"
+                          >
+                            <Icon icon={ViewOffIcon} size="sm" />
+                          </motion.span>
+                        ) : (
+                          <motion.span
+                            key="eye"
+                            initial={{ opacity: 0, scale: 0.85 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.85 }}
+                            transition={{ duration: 0.12 }}
+                            className="flex items-center"
+                          >
+                            <Icon icon={ViewIcon} size="sm" />
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    </IconButton>
+                  </div>
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <div className="pt-1.5">
-                <button
+              {/* Submit */}
+              <div className="pt-1">
+                <Button
                   type="submit"
                   disabled={isPending}
-                  className="group relative w-full h-11 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs tracking-wide shadow-sm hover:shadow-md active:scale-[0.985] disabled:opacity-60 disabled:pointer-events-none transition-all duration-200 cursor-pointer flex items-center justify-center overflow-hidden"
+                  loading={isPending}
+                  className="group w-full h-10 text-[14px] rounded-xl"
                 >
                   <AnimatePresence mode="wait" initial={false}>
                     {isPending ? (
                       <motion.div
-                        key="submitting"
+                        key="loading"
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -4 }}
                         transition={{ duration: 0.15 }}
                         className="flex items-center gap-2"
                       >
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-white/90" />
-                        <span>Signing in...</span>
+                        <Icon icon={Loading03Icon} size="sm" className="animate-spin" />
+                        <span>Signing in…</span>
                       </motion.div>
                     ) : (
                       <motion.div
@@ -204,19 +212,22 @@ export default function LoginPage() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -4 }}
                         transition={{ duration: 0.15 }}
-                        className="flex items-center justify-center gap-1.5"
+                        className="flex items-center gap-2"
                       >
                         <span>Sign In</span>
-                        <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5 text-slate-300" />
+                        <Icon
+                          icon={ArrowRight01Icon}
+                          size="sm"
+                          className="transition-transform duration-200 group-hover:translate-x-0.5"
+                        />
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </button>
+                </Button>
               </div>
             </form>
           </motion.div>
         </motion.div>
-      </main>
     </div>
   );
 }
