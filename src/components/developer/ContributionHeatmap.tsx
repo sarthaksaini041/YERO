@@ -5,16 +5,14 @@ import type { ContributionDay } from "@/lib/developer/developer-analytics";
 import { Icon } from "@/components/ui/icon";
 import {
   FireIcon,
-  FlashIcon,
   SparklesIcon,
-  Calendar03Icon,
 } from "@hugeicons/core-free-icons";
 
 interface ContributionHeatmapProps {
   calendar: ContributionDay[];
   currentStreak: number;
   longestStreak: number;
-  totalThisYear: number;
+  totalThisYear?: number;
   username: string;
   years?: Record<string, number>;
   mostActiveDay?: { date: string; count: number };
@@ -34,7 +32,6 @@ export function ContributionHeatmap({
   calendar,
   currentStreak,
   longestStreak,
-  totalThisYear,
   username,
   mostActiveDay,
 }: ContributionHeatmapProps) {
@@ -64,12 +61,7 @@ export function ContributionHeatmap({
     return sorted.slice(-371);
   }, [calendar, selectedPeriod]);
 
-  // Total contributions in currently viewed period
-  const periodTotal = React.useMemo(() => {
-    return filteredCalendar.reduce((sum, d) => sum + (d.count || 0), 0);
-  }, [filteredCalendar]);
-
-  // Average per active day
+  // Active days count
   const activeDaysCount = React.useMemo(() => {
     return filteredCalendar.filter((d) => (d.count || 0) > 0).length;
   }, [filteredCalendar]);
@@ -141,25 +133,32 @@ export function ContributionHeatmap({
   };
 
   return (
-    <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-5 sm:p-6 shadow-[var(--shadow-xs)] relative">
+    <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-4 sm:p-4.5 shadow-[var(--shadow-xs)] relative">
       {/* 1. Header & Period Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 pb-4 border-b border-[var(--color-border)]">
-        <div>
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h3 className="text-base sm:text-heading font-semibold text-[var(--color-text-primary)]">
-              Contribution Activity
-            </h3>
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-              {totalThisYear.toLocaleString()} in {new Date().getFullYear()}
-            </span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-[var(--color-border)]">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <h3 className="text-base sm:text-heading font-semibold text-[var(--color-text-primary)]">
+            Contribution Activity
+          </h3>
+
+          {/* Compact Streak Badge */}
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-200 shadow-[var(--shadow-xs)]">
+            <Icon icon={FireIcon} size={13} className="text-amber-600 shrink-0" />
+            <span>{currentStreak} {currentStreak === 1 ? "day streak" : "days streak"}</span>
+            {longestStreak > 0 && (
+              <span className="text-amber-700/80 font-normal ml-0.5 text-[11px]">
+                (Peak: {longestStreak}d)
+              </span>
+            )}
           </div>
-          <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-            52-week activity timeline and contribution streaks synchronized with GitHub
-          </p>
+
+          <span className="text-xs font-mono text-[var(--color-text-faint)] hidden sm:inline">
+            · {activeDaysCount} active days
+          </span>
         </div>
 
         {/* Period filter buttons */}
-        <div className="inline-flex items-center p-1 rounded-lg bg-[var(--color-surface-muted)] border border-[var(--color-border)] self-start sm:self-auto shrink-0">
+        <div className="inline-flex items-center p-0.5 rounded-lg bg-[var(--color-surface-muted)] border border-[var(--color-border)] self-start sm:self-auto shrink-0">
           <button
             type="button"
             onClick={() => setSelectedPeriod("52weeks")}
@@ -193,57 +192,6 @@ export function ContributionHeatmap({
           >
             6 Months
           </button>
-        </div>
-      </div>
-
-      {/* 2. Key Summary Stat Badges */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 my-4">
-        <div className="p-2.5 sm:p-3 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-            <Icon icon={SparklesIcon} size={15} />
-          </div>
-          <div className="min-w-0">
-            <div className="text-xs text-[var(--color-text-muted)] font-medium truncate">Period Total</div>
-            <div className="text-base font-bold font-mono text-[var(--color-text-primary)] leading-tight">
-              {periodTotal.toLocaleString()}
-            </div>
-          </div>
-        </div>
-
-        <div className="p-2.5 sm:p-3 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-            <Icon icon={FireIcon} size={15} />
-          </div>
-          <div className="min-w-0">
-            <div className="text-xs text-[var(--color-text-muted)] font-medium truncate">Current Streak</div>
-            <div className="text-base font-bold font-mono text-[var(--color-text-primary)] leading-tight">
-              {currentStreak} {currentStreak === 1 ? "day" : "days"}
-            </div>
-          </div>
-        </div>
-
-        <div className="p-2.5 sm:p-3 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
-            <Icon icon={FlashIcon} size={15} />
-          </div>
-          <div className="min-w-0">
-            <div className="text-xs text-[var(--color-text-muted)] font-medium truncate">Longest Streak</div>
-            <div className="text-base font-bold font-mono text-[var(--color-text-primary)] leading-tight">
-              {longestStreak} {longestStreak === 1 ? "day" : "days"}
-            </div>
-          </div>
-        </div>
-
-        <div className="p-2.5 sm:p-3 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-            <Icon icon={Calendar03Icon} size={15} />
-          </div>
-          <div className="min-w-0">
-            <div className="text-xs text-[var(--color-text-muted)] font-medium truncate">Active Days</div>
-            <div className="text-base font-bold font-mono text-[var(--color-text-primary)] leading-tight">
-              {activeDaysCount} <span className="text-[11px] font-normal text-[var(--color-text-faint)]">({filteredCalendar.length > 0 ? Math.round((activeDaysCount / filteredCalendar.length) * 100) : 0}%)</span>
-            </div>
-          </div>
         </div>
       </div>
 
