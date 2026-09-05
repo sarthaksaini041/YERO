@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# YERO
 
-## Getting Started
+A calm, focused daily task workspace built with Next.js 16, Supabase, and a liquid glass design system.
 
-First, run the development server:
+---
+
+## ✨ Features
+
+- **🌅 Asia/Kolkata (IST) Smart Reminders**: Operates strictly on `Asia/Kolkata` boundaries. Delivers idempotent check-ins at 09:00, 12:00, 15:00, 18:00, and 21:00 IST with dynamic task counters and completion celebrations.
+- **🔔 Web Push Notifications**: Multi-device push support using native service worker push APIs, VAPID signing, and automatic 410/404 subscription pruning.
+- **📜 Dedicated Notifications Page**: Full chronological history of all sent reminders grouped by date with category filters and history management.
+- **💎 Liquid Glass UI**: Refined, distraction-free aesthetic with frosted glass cards, borderless sliding category capsules, and fluid Framer Motion transitions with zero layout jitter.
+- **📱 Production-Ready PWA**: Installable standalone application with offline support, service worker caching, and app manifest.
+- **🔒 Enterprise Security**: Strict Row Level Security (RLS) policies, sliding-window rate limiting on sensitive routes, and hardened HTTP headers (CSP, HSTS, XFO, XCTO).
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router, Turbopack)
+- **Frontend**: [React 19](https://react.dev/), [Framer Motion](https://www.framer.com/motion/), [Lucide React](https://lucide.dev/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) & Liquid Glass CSS
+- **Database & Auth**: [Supabase](https://supabase.com/) (PostgreSQL, RLS, RPCs)
+- **Push Engine**: [web-push](https://www.npmjs.com/package/web-push)
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone & Install
+
+```bash
+git clone https://github.com/sarthaksaini041/YERO.git
+cd YERO
+npm install
+```
+
+### 2. Environment Setup
+
+Copy `.env.example` to `.env.local`:
+
+```bash
+cp .env.example .env.local
+```
+
+Fill in your configuration:
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (from Supabase Project Settings)
+- `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` (generate with `npx web-push generate-vapid-keys`)
+- `CRON_SECRET` (generate with `openssl rand -hex 24`)
+
+### 3. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🧪 Testing & Verification
 
-## Learn More
+Run the automated test suites:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Type check & lint
+npx tsc --noEmit
+npm run lint
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Automated test scripts
+node scripts/test-notifications-page.mjs
+node scripts/test-ist-timezone.mjs
+node scripts/test-security-and-pwa.mjs
+node scripts/test-reminders-e2e.mjs
+node scripts/verify-app.mjs
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 📄 License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT License
