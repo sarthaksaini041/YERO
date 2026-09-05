@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/supabase/server";
-import { getTasks } from "@/actions/tasks";
+import { getTasks, getTotalCompletedTasksCount } from "@/actions/tasks";
 import { TaskList } from "@/components/tasks/TaskList";
 import { AppShell } from "@/components/layout/app-shell";
 import { NotificationBootstrap } from "@/components/notifications/NotificationBootstrap";
@@ -13,14 +13,21 @@ export default async function HomePage() {
     redirect("/login");
   }
 
-  const { data: initialTasks } = await getTasks(user.id);
+  const [{ data: initialTasks }, totalCompletedAllTime] = await Promise.all([
+    getTasks(user.id),
+    getTotalCompletedTasksCount(user.id),
+  ]);
   const today = getISTDetails().formattedDisplay;
 
   return (
-    <AppShell maxWidth="lg">
+    <AppShell>
       {/* Auto-request notification permission on first load */}
       <NotificationBootstrap />
-      <TaskList initialTasks={initialTasks} todayDate={today} />
+      <TaskList
+        initialTasks={initialTasks}
+        todayDate={today}
+        totalCompletedAllTime={totalCompletedAllTime}
+      />
     </AppShell>
   );
 }

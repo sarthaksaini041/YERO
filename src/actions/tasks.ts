@@ -148,3 +148,31 @@ export async function deleteTask(
   revalidatePath("/");
   return { success: true };
 }
+
+/**
+ * Returns the total number of tasks completed of all time for the user.
+ */
+export async function getTotalCompletedTasksCount(
+  providedUserId?: string
+): Promise<number> {
+  let userId = providedUserId;
+
+  if (!userId) {
+    const user = await getCurrentUser();
+    if (!user) return 0;
+    userId = user.id;
+  }
+
+  const supabase = await createClient();
+  const { count, error } = await supabase
+    .from("tasks")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .eq("completed", true);
+
+  if (error) {
+    return 0;
+  }
+
+  return count ?? 0;
+}
