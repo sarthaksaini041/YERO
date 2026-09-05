@@ -20,7 +20,7 @@ export default async function NotesPage() {
   const { data: initialNotes } = await getNotes(user.id);
 
   return (
-    <AppShell maxWidth="xl">
+    <AppShell>
       <NotesContainer initialNotes={initialNotes || []} />
     </AppShell>
   );
