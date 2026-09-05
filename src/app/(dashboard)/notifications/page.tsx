@@ -20,11 +20,8 @@ export default async function NotificationsPage() {
   const { data: initialLogs } = await getNotificationLogs(user.id);
 
   return (
-    <AppShell maxWidth="lg">
-      <div className="space-y-3.5 sm:space-y-4">
-        <h1 className="text-heading-lg">Notifications</h1>
-        <NotificationsContainer initialLogs={initialLogs || []} />
-      </div>
+    <AppShell>
+      <NotificationsContainer initialLogs={initialLogs || []} />
     </AppShell>
   );
 }
