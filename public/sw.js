@@ -58,11 +58,13 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 2. Sensitive / dynamic endpoints: Network-only (never cache)
+  // 2. Sensitive / dynamic endpoints & Next.js RSC dynamic streams: Network-only (native browser fetch)
   if (
     url.pathname.startsWith("/api/") ||
     url.hostname.includes("supabase.co") ||
-    url.pathname.includes("/auth/")
+    url.pathname.includes("/auth/") ||
+    url.searchParams.has("_rsc") ||
+    request.headers.get("RSC") === "1"
   ) {
     return;
   }
@@ -144,7 +146,14 @@ self.addEventListener("push", (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification(notificationData.title, notificationOptions)
+    Promise.all([
+      self.registration.showNotification(notificationData.title, notificationOptions),
+      self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({ type: "NOTIFICATION_RECEIVED" });
+        });
+      }),
+    ])
   );
 });
 

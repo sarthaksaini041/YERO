@@ -9,6 +9,38 @@
 export const TIMEZONE_IST = "Asia/Kolkata";
 export const IST_OFFSET_MS = (5 * 60 + 30) * 60 * 1000; // 5 hours 30 mins in ms
 
+// Reusable singleton formatters to prevent costly re-instantiation
+const istPartsFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: TIMEZONE_IST,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+});
+
+const istDisplayFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: TIMEZONE_IST,
+  weekday: "short",
+  month: "short",
+  day: "numeric",
+});
+
+const istTimeFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: TIMEZONE_IST,
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
+});
+
+const istMonthDayFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: TIMEZONE_IST,
+  month: "short",
+  day: "numeric",
+});
+
 export interface ISTTimeDetails {
   year: number;
   month: number; // 1-12
@@ -24,18 +56,7 @@ export interface ISTTimeDetails {
  * Returns breakdown of the specified Date (or now) in Asia/Kolkata timezone.
  */
 export function getISTDetails(date: Date = new Date()): ISTTimeDetails {
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: TIMEZONE_IST,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  });
-
-  const parts = formatter.formatToParts(date);
+  const parts = istPartsFormatter.formatToParts(date);
   const partMap: Record<string, string> = {};
   for (const part of parts) {
     partMap[part.type] = part.value;
@@ -51,14 +72,7 @@ export function getISTDetails(date: Date = new Date()): ISTTimeDetails {
   const second = parseInt(partMap.second, 10);
 
   const dateString = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-
-  const displayFormatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: TIMEZONE_IST,
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
-  const formattedDisplay = displayFormatter.format(date);
+  const formattedDisplay = istDisplayFormatter.format(date);
 
   return {
     year,
@@ -149,13 +163,7 @@ export function formatISTNotificationTime(input: Date | string): string {
   const inputDetails = getISTDetails(date);
   const nowDetails = getISTDetails(new Date());
 
-  const timeFormatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: TIMEZONE_IST,
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
-  const timeStr = timeFormatter.format(date);
+  const timeStr = istTimeFormatter.format(date);
 
   // Compare date strings YYYY-MM-DD
   if (inputDetails.dateString === nowDetails.dateString) {
@@ -169,11 +177,7 @@ export function formatISTNotificationTime(input: Date | string): string {
     return `Yesterday at ${timeStr}`;
   }
 
-  const monthName = new Intl.DateTimeFormat("en-US", {
-    timeZone: TIMEZONE_IST,
-    month: "short",
-    day: "numeric",
-  }).format(date);
+  const monthName = istMonthDayFormatter.format(date);
 
   return `${monthName}, ${timeStr}`;
 }

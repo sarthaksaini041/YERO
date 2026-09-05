@@ -19,6 +19,10 @@ const cspHeader = `
   .trim();
 
 const nextConfig: NextConfig = {
+  compress: true,
+  experimental: {
+    optimizePackageImports: ["@hugeicons/core-free-icons", "@hugeicons/react"],
+  },
   async headers() {
     return [
       {

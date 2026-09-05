@@ -1,5 +1,7 @@
+import { cache } from "react";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import type { User } from "@supabase/supabase-js";
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -25,3 +27,22 @@ export async function createClient() {
     }
   );
 }
+
+/**
+ * React 19 cache-wrapped helper to get the authenticated user.
+ * Guarantees at most ONE network roundtrip per request even if called
+ * multiple times across layouts, pages, and server components.
+ */
+export const getCurrentUser = cache(async (): Promise<User | null> => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return null;
+  }
+
+  return user;
+});
