@@ -4,10 +4,18 @@ import { createClient } from "@supabase/supabase-js";
 // Initialize VAPID configuration
 const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
-const vapidSubject = process.env.VAPID_SUBJECT || "mailto:admin@yero.app";
+const rawSubject = (process.env.VAPID_SUBJECT || "mailto:admin@yero.app").trim();
+const vapidSubject =
+  rawSubject.startsWith("mailto:") || rawSubject.startsWith("http://") || rawSubject.startsWith("https://")
+    ? rawSubject
+    : `mailto:${rawSubject}`;
 
 if (vapidPublicKey && vapidPrivateKey) {
-  webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
+  try {
+    webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
+  } catch (err) {
+    console.warn("[WebPush] Failed to set VAPID details:", err);
+  }
 }
 
 export interface PushPayload {
