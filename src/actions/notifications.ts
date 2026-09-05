@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getCurrentUser } from "@/lib/supabase/server";
 import { getISTDateString } from "@/lib/time/ist";
 import { sendPushNotification } from "@/lib/notifications/web-push";
 
@@ -20,6 +20,7 @@ export interface NotificationItem {
   title: string;
   body: string;
   status: "SENT" | "FAILED" | "PENDING" | "SKIPPED";
+  read: boolean;
   sentAt: string;
 }
 
@@ -27,10 +28,7 @@ export interface NotificationItem {
  * Fetches user's current notification status and preferences.
  */
 export async function getNotificationStatus(): Promise<NotificationStatus> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     return {
@@ -39,6 +37,8 @@ export async function getNotificationStatus(): Promise<NotificationStatus> {
       notificationsEnabled: false,
     };
   }
+
+  const supabase = await createClient();
 
   // Check subscriptions
   const { data: subs } = await supabase
@@ -67,16 +67,13 @@ export async function getNotificationStatus(): Promise<NotificationStatus> {
 export async function toggleNotificationPreference(
   enabled: boolean
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
-  if (authError || !user) {
+  if (!user) {
     return { success: false, error: "Unauthorized" };
   }
 
+  const supabase = await createClient();
   const { error } = await supabase
     .from("user_preferences")
     .upsert(
@@ -101,24 +98,25 @@ export async function toggleNotificationPreference(
  * Fetches all notification logs for the current authenticated user,
  * sorted by sent_at descending.
  */
-export async function getNotificationLogs(): Promise<{
+export async function getNotificationLogs(providedUserId?: string): Promise<{
   data: NotificationItem[];
   error?: string;
 }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+  let userId = providedUserId;
 
-  if (authError || !user) {
-    return { data: [], error: "Unauthorized" };
+  if (!userId) {
+    const user = await getCurrentUser();
+    if (!user) {
+      return { data: [], error: "Unauthorized" };
+    }
+    userId = user.id;
   }
 
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("notification_logs")
-    .select("*")
-    .eq("user_id", user.id)
+    .select("id, user_id, event_type, target_date_ist, hour_slot_ist, title, body, status, read, sent_at")
+    .eq("user_id", userId)
     .order("sent_at", { ascending: false });
 
   if (error) {
@@ -134,10 +132,64 @@ export async function getNotificationLogs(): Promise<{
     title: row.title,
     body: row.body,
     status: row.status as "SENT" | "FAILED" | "PENDING" | "SKIPPED",
+    read: row.read ?? false,
     sentAt: row.sent_at,
   }));
 
   return { data: mapped };
+}
+
+/**
+ * Gets the count of unread notification logs for the current user.
+ */
+export async function getUnreadNotificationCount(): Promise<number> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return 0;
+  }
+
+  const supabase = await createClient();
+  const { count, error } = await supabase
+    .from("notification_logs")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .eq("read", false);
+
+  if (error || typeof count !== "number") {
+    return 0;
+  }
+
+  return count;
+}
+
+/**
+ * Marks all unread notification logs as read for the current user.
+ */
+export async function markNotificationsAsRead(): Promise<{ success: boolean }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { success: false };
+  }
+
+  const { error } = await supabase
+    .from("notification_logs")
+    .update({ read: true })
+    .eq("user_id", user.id)
+    .eq("read", false);
+
+  if (error) {
+    return { success: false };
+  }
+
+  revalidatePath("/notifications");
+  revalidatePath("/");
+  return { success: true };
 }
 
 /**
@@ -284,6 +336,7 @@ export async function sendTestNotification(): Promise<{
     title: inserted.title,
     body: inserted.body,
     status: inserted.status as "SENT" | "FAILED" | "PENDING" | "SKIPPED",
+    read: inserted.read ?? false,
     sentAt: inserted.sent_at,
   };
 

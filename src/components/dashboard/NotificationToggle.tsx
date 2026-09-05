@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { Bell, BellOff, Loader2, BellRing } from "lucide-react";
 import {
   isPushSupported,
   subscribeUserToPush,
@@ -11,6 +10,14 @@ import {
   getNotificationStatus,
   toggleNotificationPreference,
 } from "@/actions/notifications";
+import { IconButton } from "@/components/ui/icon-button";
+import { Icon } from "@/components/ui/icon";
+import {
+  Notification03Icon,
+  NotificationOffIcon,
+  Loading03Icon,
+  NotificationSnooze01Icon,
+} from "@hugeicons/core-free-icons";
 
 export function NotificationToggle() {
   const [isSupported, setIsSupported] = React.useState(false);
@@ -42,11 +49,9 @@ export function NotificationToggle() {
     loadStatus();
   }, []);
 
-
   const handleToggle = async () => {
     if (isLoading || !isSupported) return;
 
-    // If permission was denied by browser, alert user
     if (permission === "denied") {
       alert(
         "Notifications are blocked in your browser settings. To receive daily reminders, please allow notifications for YERO in your site permissions."
@@ -58,12 +63,10 @@ export function NotificationToggle() {
 
     try {
       if (isSubscribed) {
-        // Unsubscribe
         await unsubscribeUserFromPush();
         await toggleNotificationPreference(false);
         setIsSubscribed(false);
       } else {
-        // Subscribe
         const res = await subscribeUserToPush();
         setPermission(res.permission);
         if (res.success) {
@@ -82,49 +85,46 @@ export function NotificationToggle() {
     }
   };
 
-  if (!isSupported) {
-    return null;
-  }
+  if (!isSupported) return null;
 
   const isBlocked = permission === "denied";
 
+  const ariaLabel = isBlocked
+    ? "Notifications blocked in browser"
+    : isSubscribed
+    ? "Mute daily task reminders"
+    : "Enable daily task reminders";
+
   return (
-    <button
-      type="button"
-      onClick={handleToggle}
-      disabled={isLoading}
-      aria-label={
-        isBlocked
-          ? "Notifications blocked in browser"
-          : isSubscribed
-          ? "Daily task reminders active (click to mute)"
-          : "Enable daily task reminders"
-      }
-      title={
-        isBlocked
-          ? "Notifications blocked in browser settings"
-          : isSubscribed
-          ? "Daily task reminders active (click to mute)"
-          : "Enable daily task reminders"
-      }
-      className={`relative w-8 h-8 rounded-full liquid-glass-card border border-white/90 shadow-2xs flex items-center justify-center transition-all cursor-pointer ${
-        isSubscribed
-          ? "text-slate-900 bg-white/95 hover:bg-white"
-          : "text-slate-500 hover:text-slate-900 hover:bg-white/90"
-      } active:scale-95`}
-    >
-      {isLoading ? (
-        <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-500" />
-      ) : isBlocked ? (
-        <BellOff className="w-3.5 h-3.5 text-rose-500/80" />
-      ) : isSubscribed ? (
-        <>
-          <BellRing className="w-3.5 h-3.5 text-slate-900" />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500 ring-1 ring-white" />
-        </>
-      ) : (
-        <Bell className="w-3.5 h-3.5" />
+    <div className="relative">
+      <IconButton
+        aria-label={ariaLabel}
+        title={ariaLabel}
+        onClick={handleToggle}
+        disabled={isLoading}
+        variant="default"
+        size="md"
+        rounded="lg"
+        className={isSubscribed ? "text-[var(--color-accent)]" : ""}
+      >
+        {isLoading ? (
+          <Icon icon={Loading03Icon} size="sm" className="animate-spin" />
+        ) : isBlocked ? (
+          <Icon icon={NotificationOffIcon} size="sm" className="text-[var(--color-danger)]" />
+        ) : isSubscribed ? (
+          <Icon icon={NotificationSnooze01Icon} size="sm" />
+        ) : (
+          <Icon icon={Notification03Icon} size="sm" />
+        )}
+      </IconButton>
+
+      {/* Active indicator dot */}
+      {isSubscribed && !isLoading && (
+        <span
+          className="absolute top-1 right-1 w-2 h-2 rounded-sm bg-[var(--color-success)] ring-2 ring-white pointer-events-none"
+          aria-hidden="true"
+        />
       )}
-    </button>
+    </div>
   );
 }
