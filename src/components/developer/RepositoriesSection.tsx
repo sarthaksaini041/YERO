@@ -3,7 +3,6 @@
 import * as React from "react";
 import type { DeveloperRepoItem } from "@/lib/developer/developer-analytics";
 import { formatRelativeTime } from "@/lib/developer/developer-analytics";
-import { getLanguageColor } from "@/lib/connectors/github/github.mapper";
 import { Icon } from "@/components/ui/icon";
 import {
   Search01Icon,
@@ -24,17 +23,7 @@ export function RepositoriesSection({
 }: RepositoriesSectionProps) {
   const [tab, setTab] = React.useState<"active" | "all">("active");
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [selectedLanguage, setSelectedLanguage] = React.useState<string>("all");
   const [sortBy, setSortBy] = React.useState<"stars" | "updated" | "name">("stars");
-
-  // Extract unique languages
-  const availableLanguages = React.useMemo(() => {
-    const langs = new Set<string>();
-    for (const r of repositories) {
-      if (r.language) langs.add(r.language);
-    }
-    return Array.from(langs).sort();
-  }, [repositories]);
 
   // Filter & sort list
   const filteredRepos = React.useMemo(() => {
@@ -42,15 +31,11 @@ export function RepositoriesSection({
 
     return list
       .filter((repo) => {
-        const matchesSearch =
+        return (
           searchQuery.trim() === "" ||
           repo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (repo.description && repo.description.toLowerCase().includes(searchQuery.toLowerCase()));
-
-        const matchesLang =
-          selectedLanguage === "all" || repo.language === selectedLanguage;
-
-        return matchesSearch && matchesLang;
+          (repo.description && repo.description.toLowerCase().includes(searchQuery.toLowerCase()))
+        );
       })
       .sort((a, b) => {
         if (tab === "active") {
@@ -61,13 +46,13 @@ export function RepositoriesSection({
         if (sortBy === "name") return a.name.localeCompare(b.name);
         return 0;
       });
-  }, [tab, repositories, mostActiveRepositories, searchQuery, selectedLanguage, sortBy]);
+  }, [tab, repositories, mostActiveRepositories, searchQuery, sortBy]);
 
   return (
-    <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-4 sm:p-4.5 shadow-[var(--shadow-xs)]">
+    <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-xl)] p-4 sm:p-5 shadow-[var(--shadow-xs)] hover:shadow-[var(--shadow-sm)] transition-all duration-200">
       {/* Header & Tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-[var(--color-border)]">
-        <h3 className="text-base sm:text-heading font-semibold text-[var(--color-text-primary)]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3.5 border-b border-[var(--color-border)]">
+        <h3 className="text-[15px] sm:text-base font-bold text-[var(--color-text-primary)] tracking-tight">
           Repositories
         </h3>
 
@@ -115,23 +100,9 @@ export function RepositoriesSection({
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          {/* Language filter */}
-          <select
-            value={selectedLanguage}
-            onChange={(e) => setSelectedLanguage(e.target.value)}
-            className="flex-1 sm:flex-initial px-2.5 py-1.5 text-xs rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)] text-[var(--color-text-secondary)] focus:border-[var(--color-accent)] cursor-pointer truncate font-medium"
-          >
-            <option value="all">All Languages</option>
-            {availableLanguages.map((lang) => (
-              <option key={lang} value={lang}>
-                {lang}
-              </option>
-            ))}
-          </select>
-
-          {/* Sort dropdown (if on "all" tab) */}
-          {tab === "all" && (
+        {tab === "all" && (
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            {/* Sort dropdown (if on "all" tab) */}
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as "stars" | "updated" | "name")}
@@ -141,8 +112,8 @@ export function RepositoriesSection({
               <option value="updated">Recently Updated</option>
               <option value="name">Name (A-Z)</option>
             </select>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Repositories Grid */}
@@ -153,17 +124,12 @@ export function RepositoriesSection({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3 mt-3">
           {filteredRepos.map((repo, idx) => {
-            const langColor = getLanguageColor(repo.language);
-            const isFeatured = idx === 0 && filteredRepos.length > 1;
+            const isTopActive = idx === 0 && tab === "active";
 
             return (
               <div
                 key={repo.id}
-                className={`group p-3 sm:p-3.5 rounded-[var(--radius-md)] border flex flex-col justify-between hover:border-[var(--color-accent-border)] hover:bg-white hover:shadow-[var(--shadow-sm)] transition-all min-h-[132px] ${
-                  isFeatured
-                    ? "lg:col-span-2 bg-gradient-to-br from-white via-white to-indigo-50/20 border-indigo-200/60 shadow-[var(--shadow-xs)]"
-                    : "bg-[var(--color-surface-alt)] border-[var(--color-border)]"
-                }`}
+                className="group p-3 sm:p-3.5 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface-alt)] flex flex-col justify-between hover:border-[var(--color-border-strong)] hover:bg-white hover:shadow-[var(--shadow-xs)] transition-all min-h-[120px]"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
@@ -183,63 +149,49 @@ export function RepositoriesSection({
                         />
                       </a>
 
-                      {isFeatured && (
-                        <span className="px-1.5 py-0.2 rounded text-[9.5px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">
-                          {tab === "active" ? "Most Active" : "Top Project"}
+                      {isTopActive && (
+                        <span className="px-1.5 py-0.5 rounded text-[9.5px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">
+                          Most Active
                         </span>
                       )}
                     </div>
 
                     {repo.isFork && (
-                      <span className="px-1.5 py-0.2 rounded text-[9.5px] font-mono bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                      <span className="px-1.5 py-0.5 rounded text-[9.5px] font-mono bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
                         Fork
                       </span>
                     )}
                   </div>
 
-                  <p className={`text-[11.5px] text-[var(--color-text-muted)] mt-1.5 line-clamp-2 leading-relaxed min-h-[30px] ${isFeatured ? "max-w-2xl" : ""}`}>
+                  <p className="text-[11.5px] text-[var(--color-text-muted)] mt-1.5 line-clamp-2 leading-relaxed min-h-[32px]">
                     {repo.description || "No description provided."}
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-[var(--color-border)]/70 text-[10.5px] text-[var(--color-text-faint)]">
-                  {/* Language */}
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    {repo.language ? (
-                      <>
-                        <span
-                          className="w-2 h-2 rounded-full shrink-0"
-                          style={{ backgroundColor: langColor }}
-                        />
-                        <span className="text-[var(--color-text-secondary)] font-medium truncate">
-                          {repo.language}
+                <div className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-[var(--color-border)]/70 text-[10.5px]">
+                  {/* Updated relative time */}
+                  <span className="text-[var(--color-text-muted)] font-normal">
+                    Updated {formatRelativeTime(repo.updatedAt)}
+                  </span>
+
+                  {/* Stars and Forks */}
+                  {(repo.stars > 0 || repo.forks > 0) && (
+                    <div className="flex items-center gap-2.5 shrink-0 font-mono text-[10.5px]">
+                      {repo.stars > 0 && (
+                        <span className="flex items-center gap-0.5 text-amber-600 font-semibold" title="Stars">
+                          <Icon icon={StarIcon} size={11} />
+                          {repo.stars.toLocaleString()}
                         </span>
-                      </>
-                    ) : (
-                      <span className="text-[var(--color-text-faint)]">—</span>
-                    )}
-                  </div>
+                      )}
 
-                  {/* Stars, Forks, and Updated Date */}
-                  <div className="flex items-center gap-2.5 shrink-0 font-mono text-[10.5px]">
-                    {repo.stars > 0 && (
-                      <span className="flex items-center gap-0.5 text-amber-600 font-semibold" title="Stars">
-                        <Icon icon={StarIcon} size={11} />
-                        {repo.stars.toLocaleString()}
-                      </span>
-                    )}
-
-                    {repo.forks > 0 && (
-                      <span className="flex items-center gap-0.5 text-[var(--color-text-muted)]" title="Forks">
-                        <Icon icon={GitBranchIcon} size={11} />
-                        {repo.forks}
-                      </span>
-                    )}
-
-                    <span className="text-[var(--color-text-faint)]">
-                      {formatRelativeTime(repo.updatedAt)}
-                    </span>
-                  </div>
+                      {repo.forks > 0 && (
+                        <span className="flex items-center gap-0.5 text-[var(--color-text-muted)]" title="Forks">
+                          <Icon icon={GitBranchIcon} size={11} />
+                          {repo.forks}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             );

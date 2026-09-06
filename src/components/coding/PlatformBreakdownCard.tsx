@@ -90,7 +90,7 @@ export function PlatformBreakdownCard({
                   {data.platformName}
                 </h4>
                 {data.stars && (
-                  <span className="text-[11px] font-bold px-1.5 py-0.2 rounded bg-amber-100 text-amber-800">
+                  <span className="text-[11px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
                     {data.stars}★
                   </span>
                 )}
