@@ -75,11 +75,11 @@ export function RecentActivityTimeline({ activity }: RecentActivityTimelineProps
   };
 
   return (
-    <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-4 sm:p-4.5 shadow-[var(--shadow-xs)] flex flex-col justify-between">
+    <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-xl)] p-4 sm:p-5 shadow-[var(--shadow-xs)] hover:shadow-[var(--shadow-sm)] transition-all duration-200 flex flex-col justify-between h-full">
       <div>
         {/* Header */}
-        <div className="flex items-center justify-between pb-2.5 border-b border-[var(--color-border)]">
-          <h3 className="text-base sm:text-heading font-semibold text-[var(--color-text-primary)]">
+        <div className="flex items-center justify-between pb-3.5 border-b border-[var(--color-border)]">
+          <h3 className="text-[15px] sm:text-base font-bold text-[var(--color-text-primary)] tracking-tight">
             Recent Activity Feed
           </h3>
           <span className="text-xs font-mono text-[var(--color-text-faint)]">
@@ -101,7 +101,7 @@ export function RecentActivityTimeline({ activity }: RecentActivityTimelineProps
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span
-                      className={`px-1.5 py-0.2 rounded text-[10px] font-semibold border ${getBadgeStyle(
+                      className={`px-1.5 py-0.5 rounded text-[10px] font-semibold border ${getBadgeStyle(
                         item.type
                       )}`}
                     >
@@ -141,7 +141,7 @@ export function RecentActivityTimeline({ activity }: RecentActivityTimelineProps
                         key={i}
                         className="flex items-start gap-1.5 text-[10.5px] font-mono text-[var(--color-text-muted)]"
                       >
-                        <span className="px-1.5 py-0.2 rounded bg-[var(--color-surface-muted)] text-[var(--color-text-primary)] text-[9.5px] font-bold shrink-0">
+                        <span className="px-1.5 py-0.5 rounded bg-[var(--color-surface-muted)] text-[var(--color-text-primary)] text-[9.5px] font-bold shrink-0">
                           {c.sha}
                         </span>
                         <span className="truncate leading-tight">{c.message}</span>

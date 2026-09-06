@@ -30,11 +30,11 @@ export function PullRequestsAndIssuesSection({
   const displayedIssues = issues.slice(0, 6);
 
   return (
-    <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-lg)] p-4 sm:p-4.5 shadow-[var(--shadow-xs)] flex flex-col justify-between">
+    <div className="bg-white border border-[var(--color-border)] rounded-[var(--radius-xl)] p-4 sm:p-5 shadow-[var(--shadow-xs)] hover:shadow-[var(--shadow-sm)] transition-all duration-200 flex flex-col justify-between h-full">
       <div>
         {/* Header & Tab Selector */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-[var(--color-border)]">
-          <h3 className="text-base sm:text-heading font-semibold text-[var(--color-text-primary)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3.5 border-b border-[var(--color-border)]">
+          <h3 className="text-[15px] sm:text-base font-bold text-[var(--color-text-primary)] tracking-tight">
             PRs & Issues
           </h3>
 
@@ -51,7 +51,7 @@ export function PullRequestsAndIssuesSection({
               <Icon icon={GitPullRequestIcon} size={13} className="text-purple-600 shrink-0" />
               <span>PRs</span>
               <span
-                className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
+                className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
                   activeTab === "prs"
                     ? "bg-purple-100 text-purple-700"
                     : "bg-black/5 text-[var(--color-text-faint)]"
@@ -73,7 +73,7 @@ export function PullRequestsAndIssuesSection({
               <Icon icon={AlertCircleIcon} size={13} className="text-emerald-600 shrink-0" />
               <span>Issues</span>
               <span
-                className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
+                className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
                   activeTab === "issues"
                     ? "bg-emerald-100 text-emerald-700"
                     : "bg-black/5 text-[var(--color-text-faint)]"
@@ -125,7 +125,7 @@ export function PullRequestsAndIssuesSection({
                                 {pr.repo} <span className="text-[var(--color-text-muted)] font-normal">#{pr.number}</span>
                               </span>
                               <span
-                                className={`px-1.5 py-0.2 rounded text-[9.5px] font-semibold capitalize ${
+                                className={`px-1.5 py-0.5 rounded text-[9.5px] font-semibold capitalize ${
                                   isMerged
                                     ? "bg-purple-100 text-purple-800"
                                     : isOpen
@@ -198,7 +198,7 @@ export function PullRequestsAndIssuesSection({
                               {issue.repo} <span className="text-[var(--color-text-muted)] font-normal">#{issue.number}</span>
                             </span>
                             <span
-                              className={`px-1.5 py-0.2 rounded text-[9.5px] font-semibold capitalize ${
+                              className={`px-1.5 py-0.5 rounded text-[9.5px] font-semibold capitalize ${
                                 isOpen
                                   ? "bg-emerald-100 text-emerald-800"
                                   : "bg-purple-100 text-purple-800"

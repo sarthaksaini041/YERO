@@ -5,10 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ConnectorRecord } from "@/actions/connectors";
 import { syncConnector } from "@/actions/connectors";
-import { processDeveloperAnalytics, formatRelativeTime } from "@/lib/developer/developer-analytics";
+import { processDeveloperAnalytics } from "@/lib/developer/developer-analytics";
 import { DeveloperOverviewCards } from "./DeveloperOverviewCards";
 import { ContributionHeatmap } from "./ContributionHeatmap";
-import { LanguageDistributionCard } from "./LanguageDistributionCard";
 import { DeveloperVelocityInsights } from "./DeveloperVelocityInsights";
 import { RepositoriesSection } from "./RepositoriesSection";
 import { PullRequestsAndIssuesSection } from "./PullRequestsAndIssuesSection";
@@ -22,8 +21,10 @@ import {
   LinkSquare01Icon,
   AlertCircleIcon,
   UserAccountIcon,
-  Folder01Icon,
+  CheckmarkCircle01Icon,
 } from "@hugeicons/core-free-icons";
+import { GitHubLogo } from "@/components/connectors/PlatformLogos";
+import { cn } from "@/lib/utils";
 
 interface DeveloperDashboardProps {
   initialConnector: ConnectorRecord | null;
@@ -32,11 +33,21 @@ interface DeveloperDashboardProps {
 export function DeveloperDashboard({ initialConnector }: DeveloperDashboardProps) {
   const [connector, setConnector] = React.useState<ConnectorRecord | null>(initialConnector);
   const [isSyncing, setIsSyncing] = React.useState(false);
+  const [justSynced, setJustSynced] = React.useState(false);
   const [bannerMessage, setBannerMessage] = React.useState<{
-    type: "success" | "warning" | "error";
+    type: "warning" | "error";
     text: string;
   } | null>(null);
   const [avatarFailed, setAvatarFailed] = React.useState(false);
+  const syncTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  React.useEffect(() => {
+    return () => {
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const analytics = React.useMemo(() => processDeveloperAnalytics(connector), [connector]);
 
@@ -44,16 +55,20 @@ export function DeveloperDashboard({ initialConnector }: DeveloperDashboardProps
   const handleSync = async () => {
     if (isSyncing || !connector) return;
     setIsSyncing(true);
+    setJustSynced(false);
     setBannerMessage(null);
+    if (syncTimeoutRef.current) {
+      clearTimeout(syncTimeoutRef.current);
+    }
 
     try {
       const result = await syncConnector("github");
       if (result.success && result.connector) {
         setConnector(result.connector);
-        setBannerMessage({
-          type: "success",
-          text: "GitHub metrics synchronized successfully.",
-        });
+        setJustSynced(true);
+        syncTimeoutRef.current = setTimeout(() => {
+          setJustSynced(false);
+        }, 3000);
       } else {
         setBannerMessage({
           type: "warning",
@@ -75,7 +90,6 @@ export function DeveloperDashboard({ initialConnector }: DeveloperDashboardProps
   }
 
   const { profile } = analytics;
-  const primaryLanguage = analytics.languages[0]?.name;
 
   return (
     <div className="w-full max-w-[1536px] mx-auto space-y-3.5 sm:space-y-4 pb-10">
@@ -104,29 +118,33 @@ export function DeveloperDashboard({ initialConnector }: DeveloperDashboardProps
           </Link>
 
           <Button
-            variant="primary"
+            variant={justSynced ? "secondary" : "primary"}
             size="sm"
             onClick={handleSync}
             disabled={isSyncing}
-            className="flex items-center gap-1.5 text-xs font-semibold"
+            className={cn(
+              "flex items-center gap-1.5 text-xs font-semibold transition-all duration-200",
+              justSynced && "!bg-emerald-50 !text-emerald-700 !border-emerald-200 hover:!bg-emerald-100 shadow-none"
+            )}
           >
             <Icon
-              icon={isSyncing ? Loading03Icon : RefreshIcon}
+              icon={isSyncing ? Loading03Icon : justSynced ? CheckmarkCircle01Icon : RefreshIcon}
               size={13}
-              className={isSyncing ? "animate-spin" : ""}
+              className={cn(
+                isSyncing && "animate-spin",
+                justSynced && "text-emerald-600"
+              )}
             />
-            <span>{isSyncing ? "Syncing GitHub…" : "Sync GitHub"}</span>
+            <span>{isSyncing ? "Syncing GitHub…" : justSynced ? "Synced!" : "Sync GitHub"}</span>
           </Button>
         </div>
       </div>
 
-      {/* ── Sync Notification Banner ── */}
+      {/* ── Sync Notification Banner (only shown for error/warning) ── */}
       {bannerMessage && (
         <div
           className={`py-2 px-3 rounded-[var(--radius-md)] border text-xs flex items-center justify-between gap-3 ${
-            bannerMessage.type === "success"
-              ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-              : bannerMessage.type === "warning"
+            bannerMessage.type === "warning"
               ? "bg-amber-50 text-amber-800 border-amber-200"
               : "bg-rose-50 text-rose-800 border-rose-200"
           }`}
@@ -136,9 +154,7 @@ export function DeveloperDashboard({ initialConnector }: DeveloperDashboardProps
               icon={AlertCircleIcon}
               size={14}
               className={
-                bannerMessage.type === "success"
-                  ? "text-emerald-600"
-                  : bannerMessage.type === "warning"
+                bannerMessage.type === "warning"
                   ? "text-amber-600"
                   : "text-rose-600"
               }
@@ -230,38 +246,18 @@ export function DeveloperDashboard({ initialConnector }: DeveloperDashboardProps
           </div>
         </div>
 
-        {/* Overview Quick Highlights */}
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 pt-3 xl:pt-0 border-t xl:border-t-0 border-[var(--color-border)] shrink-0">
-          {/* Primary Language */}
-          {primaryLanguage && (
-            <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-[var(--color-border)]">
-              <div className="w-6 h-6 rounded-md bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-                <Icon icon={Folder01Icon} size={13} />
-              </div>
-              <div>
-                <div className="text-[10px] font-medium text-[var(--color-text-muted)] leading-tight">Top Stack</div>
-                <div className="text-xs font-bold font-mono text-[var(--color-text-primary)]">
-                  {primaryLanguage}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Last Synced & GitHub Profile Button */}
-          <div className="flex flex-col items-start sm:items-end justify-center min-w-[110px]">
-            <span className="text-[10px] font-mono text-[var(--color-text-faint)]">
-              Synced {profile.lastSyncedAt ? formatRelativeTime(profile.lastSyncedAt) : "Recently"}
-            </span>
-            <a
-              href={profile.profileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-0.5 text-xs font-semibold text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] inline-flex items-center gap-1 transition-colors"
-            >
-              <span>Open GitHub</span>
-              <Icon icon={LinkSquare01Icon} size={11} />
-            </a>
-          </div>
+        {/* Profile Action */}
+        <div className="flex items-center gap-2 pt-3 xl:pt-0 border-t xl:border-t-0 border-[var(--color-border)] shrink-0">
+          <a
+            href={profile.profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Open GitHub Profile"
+            aria-label="Open GitHub Profile"
+            className="h-[34px] w-[34px] rounded-[var(--radius-md)] bg-white text-[var(--color-text-secondary)] border border-[var(--color-border)] shadow-[var(--shadow-xs)] hover:bg-[var(--color-surface-muted)] hover:border-[var(--color-border-strong)] hover:text-[var(--color-text-primary)] active:scale-[0.97] flex items-center justify-center transition-all duration-150"
+          >
+            <GitHubLogo size={18} />
+          </a>
         </div>
       </div>
 
@@ -271,26 +267,23 @@ export function DeveloperDashboard({ initialConnector }: DeveloperDashboardProps
         totalThisYear={analytics.contributions.totalThisYear}
       />
 
-      {/* ── 3. Contribution Activity (52-Week Heatmap & Velocity) ── */}
-      <ContributionHeatmap
-        calendar={analytics.contributions.calendar}
-        currentStreak={analytics.overview.currentStreak}
-        longestStreak={analytics.overview.longestStreak}
-        totalThisYear={analytics.contributions.totalThisYear}
-        username={profile.username}
-        years={analytics.contributions.years}
-        mostActiveDay={analytics.contributions.mostActiveDay}
-      />
-
-      {/* ── 4. Engineering Analytics & Activity Bento Grid ── */}
+      {/* ── 3. Engineering Analytics & Activity Bento Grid ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-4 items-stretch">
-        <div className="lg:col-span-5 flex flex-col">
-          <LanguageDistributionCard
-            languages={analytics.languages}
-            totalRepos={analytics.overview.totalRepos}
+        {/* Tier 1 Left: Contribution Activity (7 cols) */}
+        <div className="lg:col-span-7 flex flex-col">
+          <ContributionHeatmap
+            calendar={analytics.contributions.calendar}
+            currentStreak={analytics.overview.currentStreak}
+            longestStreak={analytics.overview.longestStreak}
+            totalThisYear={analytics.contributions.totalThisYear}
+            username={profile.username}
+            years={analytics.contributions.years}
+            mostActiveDay={analytics.contributions.mostActiveDay}
           />
         </div>
-        <div className="lg:col-span-7 flex flex-col">
+
+        {/* Tier 1 Right: Repository & Engineering Velocity (5 cols) */}
+        <div className="lg:col-span-5 flex flex-col">
           <DeveloperVelocityInsights
             pullRequests={analytics.pullRequests}
             issues={analytics.issues}
@@ -299,9 +292,13 @@ export function DeveloperDashboard({ initialConnector }: DeveloperDashboardProps
             totalStars={analytics.overview.totalStars}
           />
         </div>
+
+        {/* Tier 2 Left: Recent Activity Feed (7 cols) */}
         <div className="lg:col-span-7 flex flex-col">
           <RecentActivityTimeline activity={analytics.recentActivity} />
         </div>
+
+        {/* Tier 2 Right: PRs & Issues Tracker (5 cols) */}
         <div className="lg:col-span-5 flex flex-col">
           <PullRequestsAndIssuesSection
             pullRequests={analytics.pullRequests}
@@ -312,7 +309,7 @@ export function DeveloperDashboard({ initialConnector }: DeveloperDashboardProps
         </div>
       </div>
 
-      {/* ── 6. Repositories Section ── */}
+      {/* ── 4. Repositories Section ── */}
       <RepositoriesSection
         repositories={analytics.repositories}
         mostActiveRepositories={analytics.mostActiveRepositories}
