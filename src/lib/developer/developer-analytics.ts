@@ -4,7 +4,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { ConnectorRecord } from "@/actions/connectors";
-import { getLanguageColor } from "@/lib/connectors/github/github.mapper";
+import { getLanguageColor, calculateStreaks } from "@/lib/connectors/github/github.mapper";
 
 export interface DeveloperProfileInfo {
   username: string;
@@ -220,19 +220,24 @@ export function processDeveloperAnalytics(
     contributionYears[currentYearStr] ??
     rawCalendar.reduce((sum, d) => sum + (d.count || 0), 0);
 
+  // Dynamically compute streaks from rawCalendar if available
+  const calculatedStreaks = rawCalendar.length > 0 ? calculateStreaks(rawCalendar) : null;
+
   const currentStreak =
-    typeof stats.currentStreak === "number"
+    calculatedStreaks?.currentStreak ??
+    (typeof stats.currentStreak === "number"
       ? stats.currentStreak
       : typeof meta.currentStreak === "number"
       ? meta.currentStreak
-      : 0;
+      : 0);
 
   const longestStreak =
-    typeof stats.longestStreak === "number"
+    calculatedStreaks?.longestStreak ??
+    (typeof stats.longestStreak === "number"
       ? stats.longestStreak
       : typeof meta.longestStreak === "number"
       ? meta.longestStreak
-      : 0;
+      : 0);
 
   let mostActiveDay: { date: string; count: number } | undefined;
   for (const d of rawCalendar) {

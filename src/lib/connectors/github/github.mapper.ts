@@ -50,11 +50,23 @@ export function calculateStreaks(
   // Sort chronologically ascending
   const sorted = [...contributions].sort((a, b) => a.date.localeCompare(b.date));
 
+  // Determine current date in both UTC and local YYYY-MM-DD
+  const now = new Date();
+  const utcToday = now.toISOString().slice(0, 10);
+  const localToday = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const effectiveToday = localToday > utcToday ? localToday : utcToday;
+
+  // Filter out future dates (upstream APIs often return dates till end of year with 0 count)
+  const pastAndToday = sorted.filter((d) => d.date <= effectiveToday);
+  if (pastAndToday.length === 0) {
+    return { currentStreak: 0, longestStreak: 0 };
+  }
+
   let longestStreak = 0;
   let tempStreak = 0;
 
-  for (const day of sorted) {
-    if (day.count > 0) {
+  for (const day of pastAndToday) {
+    if ((day.count || 0) > 0) {
       tempStreak += 1;
       if (tempStreak > longestStreak) {
         longestStreak = tempStreak;
@@ -64,22 +76,44 @@ export function calculateStreaks(
     }
   }
 
-  // Current streak: Walk backwards from the most recent day
-  let currentStreak = 0;
-  const len = sorted.length;
+  // Calculate current streak
+  const yesterdayDate = new Date(now);
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  const yesterdayStr = `${yesterdayDate.getFullYear()}-${String(yesterdayDate.getMonth() + 1).padStart(2, "0")}-${String(yesterdayDate.getDate()).padStart(2, "0")}`;
 
-  let startIndex = len - 1;
-  // If the last day has 0 contributions, check if yesterday was active
-  if (startIndex >= 0 && sorted[startIndex].count === 0 && startIndex > 0) {
-    startIndex -= 1;
+  const len = pastAndToday.length;
+  const lastDay = pastAndToday[len - 1];
+
+  let startIndex = -1;
+  if (lastDay.date === effectiveToday) {
+    if ((lastDay.count || 0) > 0) {
+      startIndex = len - 1;
+    } else {
+      // If today has 0 contributions so far, check if yesterday was active
+      if (len >= 2 && pastAndToday[len - 2].date >= yesterdayStr && (pastAndToday[len - 2].count || 0) > 0) {
+        startIndex = len - 2;
+      }
+    }
+  } else if (lastDay.date >= yesterdayStr) {
+    // Latest day recorded in data is yesterday
+    if ((lastDay.count || 0) > 0) {
+      startIndex = len - 1;
+    }
   }
 
-  for (let i = startIndex; i >= 0; i--) {
-    if (sorted[i].count > 0) {
-      currentStreak += 1;
-    } else {
-      break;
+  let currentStreak = 0;
+  if (startIndex >= 0) {
+    for (let i = startIndex; i >= 0; i--) {
+      if ((pastAndToday[i].count || 0) > 0) {
+        currentStreak += 1;
+      } else {
+        break;
+      }
     }
+  }
+
+  if (currentStreak > longestStreak) {
+    longestStreak = currentStreak;
   }
 
   return { currentStreak, longestStreak };
